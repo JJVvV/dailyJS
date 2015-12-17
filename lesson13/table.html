@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>table</title>
+</head>
+<body>
+行数 <input type="text"> 列数 <input type="text"> <button>生成表格</button>
+
+<script>
+
+    function CreateTable(){
+        this.oTable = null;
+        this.bgColor = 0;
+    }
+
+    CreateTable.prototype = {
+        init: function(row, col){
+            var oFrag = document.createDocumentFragment();
+            var oTemp = document.createElement('div');
+            var oBody = document.body;
+            var aRow = [];
+            var aCol = [];
+            for(var i= row; i--;){
+                aCol.length = 0;
+                for(var j=col; j--;){
+                    this.bgColor = this.getRanColor();
+                    aCol.push('<td style="background:'+ this.bgColor +'">'+ this.randomRange(1, 15) +'</td>');
+                }
+                aRow.push('<tr>'+ aCol.join('') +'</tr>');
+            }
+
+            oTemp.innerHTML = '';
+            oTemp.innerHTML = '<table><tbody>'+ aRow.join('') +'</tbody></table>';
+            while(oTemp.firstChild) oFrag.appendChild(oTemp.firstChild);
+            this.oTable && oBody.removeChild(this.oTable);
+            oBody.appendChild(oFrag);
+            this.oTable = oBody.lastChild;
+        },
+
+        randomRange: function(lower, upper){
+            return Math.floor(Math.random() * (upper - lower + 1) + lower)
+        },
+
+        getRanColor: function(){
+            return '#' + ('0' + this.randomRange(0, 0xFFFFFF).toString(16)).slice(-6);
+        }
+
+    }
+
+
+    new CreateTable().init(2, 3);
+</script>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<button id="my-btn">my button</button>
+<div id="myDiv">我是你的OK朋</div>
+<div id="status"></div>
+<div class="draggable" id="drag" style="position:absolute">
+    <div>draggable</div>
+</div>
+<script src="node_modules/watchjs/src/watch.js"></script>
+<script>
+
+    var ex1 = {
+        attr1: "initial value of attr1",
+        attr2: "initial value of attr2"
+    };
+
+    //defining a 'watcher' for an attribute
+    watch(ex1, "attr1", function(){
+        console.log('ex1 changed');
+        WatchJS.noMore = true;
+        ex1.attr2 = ex1.attr1 + 'haha';
+    });
+
+    watch(ex1, "attr2", function(){
+        console.log('ex1 changed again');
+    });
+
+
+    var mathObj = {
+        constants: {
+
+        },
+
+        areaOfCircle: function(radius){
+            return this.constants.pi * radius*radius;
+        }
+    }
+
+    Object.defineProperty(mathObj.constants, 'pi', {
+        value: 3.14,
+        writable: false
+    });
+
+    var body = document.body;
+    Object.defineProperty(body.style, 'height', {
+        set: function(x){
+            console.log('hahaha');
+           this.haha = x;
+        },
+
+        get: function(){
+            return this.haha;
+        },
+
+        configurable: true,
+        enumerable: true
+    })
+
+    var o = {};
+
+    Object.defineProperty(o, 'a', {
+        value: 37,
+        writable: true,
+        enumerable: true,
+        configurable: true
+    });
+
+    var bValue;
+    Object.defineProperty(o, 'b', {
+        get: function(){
+            return bValue;
+        },
+
+        set: function(newValue){
+            bValue = newValue;
+        },
+
+        enumerable: true,
+        configurable: true
+    })
+
+    function Archiver(){
+        var temperature = null;
+        archive = [];
+
+        Object.defineProperty(this, 'temperature', {
+            get: function(){
+                console.log('get');
+                return temperature;
+            },
+            set: function(value){
+                temperature = value;
+                archive.push({val: temperature});
+            }
+        })
+
+        this.getArchive = function(){
+            return archive;
+        }
+    }
+
+    var arc = new Archiver();
+
+
+
+
+    function Person(name, age, job){
+        if(!this instanceof Person){
+            return new Person(name, age, job);
+        }
+
+        this.name = name;
+        this.age = age;
+        this.job = job;
+    }
+
+    function Polygon(sides){
+        if(this instanceof Polygon){
+            this.sides = sides;
+            this.getArea = function(){
+                return 0;
+            }
+        }else{
+            return new Polygon(sides);
+        }
+    }
+
+    function Rectangle(width, height){
+        Polygon.call(this, 2);
+        this.width = width;
+        this.height = height;
+        this.getArea = function(){
+            return this.width * this.height;
+        }
+
+    }
+
+    function createXHR(){
+        if(typeof XMLHttpRequest != 'undefined'){
+            createXHR = function(){
+                return new XMLHttpRequest();
+            }
+        }else if(typeof ActiveXObject != 'undefined'){
+            createXHR = function(){
+
+            }
+        }
+    }
+
+    var handler = {
+        message: 'Event handled',
+
+        handleClick: function(name,event){
+            console.log(this.message + ' : ' + name + ' : ' + event.type);
+        }
+    }
+
+    var btn = document.getElementById('my-btn');
+    btn.addEventListener('click', bind(handler.handleClick, handler, 'my-btn'), false);
+
+    function bind(fn, context){
+        return function(){
+            return fn.apply(context, arguments);
+        }
+    }
+
+    function curry(fn, context){
+        var args = Array.prototype.slice.call(arguments, 2);
+
+        return function(){
+            var innerArgs = Array.prototype.slice.call(arguments);
+            var finalArgs = args.concat(innerArgs);
+            return fn.apply(context, finalArgs);
+        }
+    }
+
+    function add(num1, num2){
+        return num1 + num2;
+    }
+
+    var curriedAdd = curry(add, 5);
+
+    console.log(curriedAdd(3));
+
+    function chunk(array, process, context){
+        setTimeout(function p(){
+            var item = array.shift();
+            process.call(context, item);
+
+            if(array.length){
+                setTimeout(p, 100)
+            }
+        }, 100);
+    }
+
+
+    var data = [12, 123, 1234, 234, 234, 4123,456, 67, 68,132, 1234, 456, 234];
+
+    function printValue(item){
+        var div = document.getElementById('myDiv');
+        div.innerHTML += item + '<br />';
+    }
+
+    chunk(data, printValue);
+
+
+    //copy a array
+
+    function copyArray(arr){
+
+        return Object.prototype.toString.call(arr) === '[object Array]' ?
+                arr.concat() : [];
+
+    }
+
+    var processor = {
+        timeoutId: null,
+
+        performProcessing: function(){
+
+        },
+
+        process: function(){
+            clearTimeout(this.timeoutId);
+
+            var that = this;
+            that.timeoutId = setTimeout(function(){
+                that.performProcessing();
+            }, 100)
+        }
+    }
+
+    function throttle(method, context){
+        clearTimeout(method.tId);
+        method.tId = setTimeout(function(){
+            method.call(context);
+        }, 100)
+    }
+
+    function throttle2(method, delay){
+        var tId;
+
+        return function(){
+            var that = this,
+                    args = arguments;
+            clearTimeout(tId);
+            tId = setTimeout(function(){
+                method.apply(that, args);
+            }, delay || 300);
+        }
+    }
+
+    function throttle3(method, delay){
+        var t = 0;
+        delay = delay || 300;
+        return function(){
+            var n = +new Date();
+
+            if(n - t >= delay){
+                method.apply(this, arguments);
+                t = n;
+            }
+        }
+    }
+
+    function throttle4(method, delay){
+        var t = new Date(),
+                id = null;
+        return function(){
+            var context = this,
+                    args = arguments,
+                    cur = new Date();
+            clearTimeout(id);
+            if(cur - t >= delay){
+                method.apply(context, args);
+            }else{
+                id = setTimeout(function(){
+                    method.apply(context, args);
+                }, delay || 300)
+            }
+        }
+    }
+
+    function EventTarget(){
+        this.handlers = {};
+    }
+
+    EventTarget.prototype = {
+        constructor: EventTarget,
+
+        addHandler: function(type, handler){
+            if(typeof this.handlers[type] == 'undefined'){
+                this.handlers[type] = [];
+            }
+
+            this.handlers[type].push(handler);
+        },
+
+        fire: function(event){
+            if(!event.target){
+                event.target = this;
+            }
+            if(this.handlers[event.type] instanceof Array){
+                var handlers = this.handlers[event.type];
+                for(var i= 0, len=handlers.length; i<len; i++){
+                    handlers[i](event);
+                }
+            }
+        },
+
+        removeHandler: function(type, handler){
+            if(this.handlers[type] instanceof Array){
+                var handlers = this.handlers[type],
+                        j = handlers.length;
+                while(j--){
+                    if(handlers[j] === handler){
+                        break;
+                    }
+                }
+                if(handlers[j]){
+                    handlers.splice(j, 1);
+                }
+            }
+        }
+    }
+
+    function handleMessage(event){
+        alert('Message received: ' + event.message);
+    }
+
+    var target = new EventTarget();
+
+    target.addHandler('message', handleMessage);
+
+    target.fire({type: 'message', message: 'Hello world!'});
+
+    function Person(name, age){
+        EventTarget.call(this);
+        this.name = name;
+        this.age = age;
+    }
+
+    inheritPrototype(Person, EventTarget);
+
+    Person.prototype.say = function(message){
+        this.fire({type: 'message', message: message});
+    }
+
+    var person = new Person('Alex', 20);
+
+    person.addHandler('message', handleMessage);
+
+    person.say('Hi there.');
+
+    function inheritPrototype(subType, superType){
+        var prototype = object(superType.prototype);
+        prototype.constructor = subType;
+        subType.prototype = prototype;
+    }
+
+    function object(obj){
+        function F(){};
+        F.prototype = obj;
+        return new F();
+    }
+
+    //DRAG AND DROP
+
+//    document.addEventListener('mousemove', function(){
+//        var myDiv = document.getElementById('myDiv');
+//        myDiv.style.position = 'absolute';
+//        myDiv.style.left = event.clientX + 'px';
+//        myDiv.style.top = event.clientY + 'px';
+//    }, false)
+
+    var EventUtil = {
+        addHandler: function(element, type, handler){
+            if(element.addEventListener){
+                element.addEventListener(type, handler, false);
+            }else if(element.attachEvent){
+                element.attachEvent('on' + type, handler);
+            }else {
+                element['on' + type] = handler;
+            }
+        },
+
+        removeHandler: function(element, type, handler){
+            if(element.removeEventListener){
+                element.removeEventListener(type, handler, false);
+            }else if(element.attachEvent){
+                element.attachEvent('on' + type, handler);
+            }else {
+                element['on' + type] = null;
+            }
+        },
+
+        getEvent: function(event){
+            return event ? event : window.event;
+        },
+
+        getTarget: function(event){
+            return event.target || event.srcElement;
+        },
+
+        preventDefault: function(event){
+            if(event.preventDefault){
+                event.preventDefault();
+            }else{
+                event.returnValue = false;
+            }
+        },
+
+        stopPropagation: function(event){
+            if(event.stopPropagation){
+                event.stopPropagation();
+            }else{
+                event.cancelBubble = true;
+            }
+        }
+    }
+
+
+    var DragDrop = function(){
+        var dragging = null,
+                dragdrop = new EventTarget(),
+                diffX = 0,
+                diffY = 0;
+
+
+        function handleEvent(event){
+            event = EventUtil.getEvent(event);
+            var target = EventUtil.getTarget(event);
+
+            switch(event.type){
+                case 'mousedown':
+                    if(target.className.indexOf('draggable') > -1){
+                        dragging = target;
+                        diffX = event.clientX - target.offsetLeft;
+                        diffY = event.clientY - target.offsetTop;
+                        dragdrop.fire({type: 'dragstart', target: dragging, x: event.clientX, y: event.clientY});
+                    }
+                    break;
+                case 'mousemove':
+                    if(dragging !== null){
+                        document.body.style.webkitUserSelect = 'none';
+                        dragging.style.left = event.clientX - diffX + 'px';
+                        dragging.style.top = event.clientY - diffY + 'px';
+
+                        dragdrop.fire({type: 'drag', target: dragging, x: event.clientX, y: event.clientY});
+                    }
+                    break;
+                case 'mouseup':
+                    document.body.style.webkitUserSelect = '';
+                    dragdrop.fire({type: 'dragend', target: dragging, x: event.clientX, y: event.clientY});
+                    dragging = null;
+                    break;
+            };
+        }
+
+        dragdrop.enable = function(){
+                EventUtil.addHandler(document, 'mousedown', handleEvent);
+                EventUtil.addHandler(document, 'mousemove', handleEvent);
+                EventUtil.addHandler(document, 'mouseup', handleEvent);
+            };
+        dragdrop.disable = function(){
+                EventUtil.removeHandler(document, 'mousedown', handleEvent);
+                EventUtil.removeHandler(document, 'mousemove', handleEvent);
+                EventUtil.removeHandler(document, 'mouseup', handleEvent);
+        }
+
+        return dragdrop;
+
+    }();
+
+    DragDrop.addHandler('dragstart', function(event){
+        var status = document.getElementById('status');
+        status.innerHTML = 'Started dragging ' + event.target.id;
+    });
+
+    DragDrop.addHandler('drag', function(event){
+        var status = document.getElementById('status');
+        status.innerHTML += '<br>Dragged ' + event.target.id + ' to ('+ event.x +', '+ event.y +')'
+    });
+
+    DragDrop.addHandler('dragend', function(event){
+        var status = document.getElementById('status');
+        status.innerHTML += '<br>Dropped ' + event.target.id + 'at ( '+ event.x +' , '+ event.y +' )'
+    });
+
+    DragDrop.enable();
+
+    var height = '';
+    Object.defineProperty(document.body.style, 'height', {
+        enumerable: true,
+        configurable: true,
+        get: function(){
+            return height;
+        },
+        set: function(v){
+            height = v;
+            alert('haha');
+        }
+
+    });
+
+</script>
+</body>
+</html>

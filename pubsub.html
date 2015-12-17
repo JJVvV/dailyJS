@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>pubsub</title>
+</head>
+<body>
+
+<script src="pubsub.js"></script>
+<script>
+
+    var myFunc1 = function(type, data){console.log('func1', data)};
+    var myFunc2 = function(type, data){console.log('func2', data)};
+    var myFunc3 = function(type, data){console.log('func3', data)};
+
+    PubSub.subscribe('a', myFunc1);
+
+
+    PubSub.publish('a', 'hello a');
+    PubSub.publish('a', 'hello a again');
+</script>
+</body>
+</html>

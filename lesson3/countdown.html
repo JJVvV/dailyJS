@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>reg</title>
+</head>
+<body>
+<input type="text">分钟
+<input type="text">秒
+<button>启动</button>
+<script>
+    var inputs = document.querySelectorAll('input');
+    var btn = document.querySelector('button');
+    var start = false;
+    var t;
+    var allT = 100;
+    btn.onclick = function(){
+        start = !start;
+
+        if(start){
+            t = setInterval(getTimes, 1000)
+        }else{
+            clearInterval(t)
+        }
+    }
+    function format(str){
+        str = str + '';
+        return str = str.length === 2 ? str : str.replace(/^(\d)$/, '0$1')
+    }
+    function getTimes(){
+        if(allT <= 0){
+            clearInterval(t);
+            return;
+        }
+        allT--;
+
+        inputs[0].value = format(parseInt(allT / 60));
+        inputs[1].value = format(allT - parseInt(allT / 60) * 60)
+    }
+
+</script>
+</body>
+</html>

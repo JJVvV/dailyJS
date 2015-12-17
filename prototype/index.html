@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>prototype</title>
+</head>
+<body>
+
+<script>
+
+    var arr = [];
+    var slice = arr.slice;
+
+
+
+    //create 返回一个构造函数
+    function create(){
+
+        function klass(){
+            this.initialize.apply(this, arguments);
+        }
+
+
+        var parent = null;
+        var properties = slice.call(arguments);
+
+        if(typeof properties[0] === 'function'){
+            parent = properties.shift();
+        }
+        properties = properties.pop();
+
+        klass.supclass = parent;
+
+        if(parent){
+            var f = function(){}
+            f.prototype = parent.prototype;
+            klass.prototype = new f;
+        }
+
+        var ancestor = klass.supclass && klass.supclass.prototype;
+        for(var k in properties){
+            var value = properties[k];
+
+            if(ancestor && ancestor[k] && typeof value === 'function'){
+                var isSuper = /\s*function\s*[^\(\)]*\(\s*\$super\s*(\)|,)?/
+
+                if(isSuper.test(value.toString())){
+
+                    value = function(k, v){
+                        return function(){
+                            var args = slice.call(arguments);
+                            var that = this;
+                            var arg = function(){
+                                return ancestor[k].apply(that, arguments);
+                            }
+
+                            args.unshift(arg);
+
+                            return v.apply(this, args);
+
+
+                        }
+                    }(k, v)
+
+                }
+            }
+
+            klass.prototype[k] = value;
+        }
+
+        if(!klass.prototype.initialize){
+            klass.prototype.initialize = function(){}
+        }
+
+        klass.prototype.constructor = klass;
+
+        return klass;
+    }
+
+
+    var AbstractView = create({
+        initialize: function(opts){
+            opts = opts || {};
+            this.wrapper = opts.wrapper || $('body');
+
+            //事件集合
+            this.events = {};
+
+            this.isCreate = false;
+        },
+
+        on: function(type, fn){
+            if(!this.events[type]) this.events[type] = [];
+
+            this.events[type].push(fn);
+        },
+
+        trigger: function(type){
+            if(!this.events[type]) return;
+
+            for(var i = 0, len = this.events[type].length; i < len; i++){
+                this.events[type][i].call(this);
+            }
+        },
+
+        createHTML: function(){
+            throw '必须重写';
+        },
+
+        create: function(){
+            this.root = $(this.createHTML());
+            this.wrapper.append(this.root);
+            this.trigger('onCreate');
+            this.isCreate = true;
+        },
+
+        show: function(){
+            if(!this.isCreate) this.create();
+            this.root.show();
+            this.trigger('onShow');
+        },
+
+        hide: function(){
+            this.root.hide();
+        }
+    })
+
+    var Alert = create(AbstractView, {
+        createHTML: function(){
+            return '<div class="alert">这里是alert框</div>'
+        }
+    });
+
+    var AlertTitle = create(Alert, {
+        initialize: function($super){
+            this.title = '';
+            $super();
+        },
+
+        createHTML: function(){
+            return '<div class="alert"><h2>'+ this.title +'</h2></div>'
+        },
+
+        setTitle: function(title){
+            this.title = title;
+            this.root.find('h2').html(title);
+        }
+    });
+
+    var AlertTitleButton = create(AlertTitle, {
+        initialize: function($super){
+            this.title = '';
+            $super();
+
+            this.on('onShow', function(){
+                var bt = $('<input type="button" value="点击我" />');
+                bt.click($.proxy(function () {
+                    alert(this.title);
+                }, this));
+                this.root.append(bt)
+            })
+        }
+
+
+    });
+
+</script>
+</body>
+</html>

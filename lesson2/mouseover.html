@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mouseover</title>
+    <style>
+        ul{
+            list-style:none;
+        }
+        li{
+            float:left;
+            width:200px;
+            height:200px;
+            border:2px solid #92996d;
+            position:relative;
+        }
+        li img{
+            display:none;
+            max-width:250px;
+            max-height:250px;
+            position:absolute;
+            left:-25px;
+            top:-25px;
+        }
+    </style>
+</head>
+<body>
+
+<ul>
+    <li>
+        <h2>hello</h2>
+        <img src="../image/clothes.jpeg" alt=""></li>
+    <li>
+        <h2>hello</h2>
+        <img src="../image/clothes.jpeg" alt=""></li>
+    <li>
+        <h2>hello</h2>
+        <img src="../image/clothes.jpeg" alt=""></li>
+</ul>
+
+<script>
+    items = Array.prototype.slice.call(document.querySelectorAll('li'));
+
+
+    items.forEach(function(item, index){
+        item.onmouseover = function(){
+            items.forEach(function(i){
+                i.className = ''
+                i.querySelector('img').style.display = 'none';
+            })
+            this.className = 'hover';
+            this.querySelector('img').style.display = 'block';
+
+        }
+
+        item.onmouseout = function(){
+            items.forEach(function(i){
+                i.className = ''
+                i.querySelector('img').style.display = 'none';
+            })
+            this.className = '';
+            this.querySelector('img').style.display = '';
+
+        }
+    })
+</script>
+</body>
+</html>

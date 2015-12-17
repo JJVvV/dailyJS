@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>reg</title>
+</head>
+<body>
+<input type="text">点
+<input type="text">分
+<input type="text">秒
+
+<script>
+    var inputs = document.querySelectorAll('input');
+
+    setInterval(getTimes, 1000)
+
+    function getTimes(){
+        var t = new Date();
+        var aDate = [t.getHours(), t.getMinutes(), t.getSeconds()];
+        for(var i in inputs) inputs[i].value = aDate[i];
+    }
+    getTimes();
+</script>
+</body>
+</html>

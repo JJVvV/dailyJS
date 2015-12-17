@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Animate</title>
+    <style>
+        #wrap{
+            border:1px solid #92996d;
+            position:relative;
+        }
+
+        #wrap .box{
+            background: #9dbdae;
+            width:100px;
+            height:100px;
+            position:absolute;
+            left: 20px;
+            top:20px;
+            opacity:1;
+        }
+    </style>
+</head>
+<body>
+
+
+<div id="wrap">
+    <input type="button" value="开始" />
+    <div class="box"><span></span></div>
+</div>
+
+<script>
+
+    var Animate = function(oElement, options, callback){
+        this.initialize.apply(this, arguments)
+    }
+
+    Animate.prototype = {
+        constructor: Animate,
+
+        initialize: function(oElement, options, callback){
+            var oThis = this;
+            this.options = options;
+            this.callback = callback;
+            this.oElement = typeof oElement === 'stirng' ? document.getElementById(oElement) : oElement;
+            clearInterval(this.timer);
+            this.timer = setInterval(function(){
+                oThis.doMove();
+            }, 30)
+        },
+
+        css: function(attr, value){
+            if(arguments.length === 1){
+                return parseFloat(this.oElement.currentStyle ? this.oElement.currentStyle[attr] : getComputedStyle(this.oElement, null)[attr])
+            }else if(arguments.length === 2){
+                attr == 'opacity' ? (this.oElement.filter = 'alpha(opacity="'+ value +'")', this.oElement.style.opacity = value / 100) : this.oElement.style[attr] = value + 'px';
+            }
+        },
+
+        doMove: function(){
+            var opt = this.options;
+            var bComplete = true;
+            for(var p in opt){
+                var iCur = p == 'opacity' ? parseInt(this.css(p).toFixed(2)*100) : this.css(p);
+                var iSpeed = (opt[p] - iCur) / 5;
+                iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed);
+                iCur === opt[p] || (bComplete = false, this.css(p, iCur + iSpeed))
+            }
+            bComplete && (clearInterval(this.timer), this.callback && this.callback.call(this))
+        }
+    };
+
+    window.onload = function(){
+
+        var oDiv = document.querySelector('.box');
+        var oInput = document.getElementsByTagName("input")[0];
+
+        var aData = [
+            {width: 20, height: 20},
+            {width: 80, height: 80},
+            {left:10},
+            {left: 408},
+            {opacity:100},
+            {opacity:0},
+            {opacity:100},
+            {width:80, height:80, left: 408},
+            {top:10},
+            {width:20, height:20, left: 468},
+            {top:70},
+            {left:10},
+            {top:10},
+            {top:10},
+            {left:468},
+            {width:20, height:20, left: 468},
+            {width:80, height:80, left: 408}
+        ];
+
+        var bOrder = true;
+        var i = 0;
+        oInput.disabled = false;
+
+        oInput.onclick = function(){
+            var oThis = this;
+            oThis.disabled = true;
+
+            function begin(){
+                bOrder ? i++ : i--;
+                if(i == aData.length || i < 0){
+                    bOrder = !bOrder;
+                    oThis.value = bOrder ? 'start' : 'back';
+                    oThis.disabled = false;
+                    return;
+                }
+                var obj = new Animate(oDiv, aData[i], begin);
+            }
+
+            begin()
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

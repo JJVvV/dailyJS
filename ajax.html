@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ajax</title>
+</head>
+<body>
+<script>
+
+    function createXHR(){
+        return new XMLHttpRequest();
+    }
+
+    var xhr = createXHR();
+
+    xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+            if(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304){
+                alert(xhr.responseText);
+            }else{
+                alert('Request was unsuccessful: ' + xhr.status);
+            }
+        }
+    }
+
+    xhr.open('get', 'example.txt', true);
+    xhr.setRequestHeader('MyHeader', 'MyValue');
+    xhr.send(null);
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

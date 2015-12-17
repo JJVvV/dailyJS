@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>slider</title>
+    <style>
+        .slider{
+            position: relative;
+            width: 800px;
+            height: 400px;
+            border: 1px solid #dfdfdf;
+            text-align: center;
+            line-height: 400px;
+            overflow: hidden;
+        }
+
+        .slider img{
+            max-width: 100%;
+            max-height: 100%;
+            vertical-align: middle;
+        }
+        .slider-loading{
+            width: 20px;
+            height: 20px;
+            display: block;
+            border:1px solid crimson;
+            animation: rotate 1s linear infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .slider-nav-list{
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 20px 0;
+            background: rgba(255, 255, 255, .6);
+            text-align: center;
+            list-style: none;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .slider-nav-item{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .9);
+            margin: 0 10px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+
+        .slider-nav-item.active, .slider-nav-item:hover{
+            background: rgba(255, 255, 255, .9);
+            box-shadow: 0 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes rotate {
+            0%{
+                transform: rotate(0deg);
+            }
+
+            100%{
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slider"></div>
+<script>
+    var data = ['image/books.jpg', 'image/cappuccino.jpg', 'image/clothes.jpeg', 'image/control.jpg'];
+
+    var isFunc = isType('Function');
+    var isObj = isType('Object');
+    var isBool = isType('Boolean');
+    var isArr = isType('Array');
+
+    function isType(type){
+        return function(obj){
+            return Object.prototype.toString.call(obj) === '[object '+ type +']';
+        }
+    }
+
+    function extend(){
+        var args = arguments,
+                i = 1,
+                deep = false,
+                target = args[0],
+                length = args.length,
+                p,
+                clone,
+                options,
+                src,
+                copyIsArray,
+                copy;
+
+        if(isBool(args[0])){
+            deep = args[0];
+            target = args[1];
+            i++;
+        }
+
+        if(i === length){
+            return args[0];
+        }
+        if(typeof target !== 'object' && !isFunc(target)){
+            target = {}
+        }
+        for(; i<length; i++){
+            if((options = args[i]) != null){
+                for(p in options){
+                    src = target[p];
+                    copy = options[p];
+                    if(src === copy){
+                        continue;
+                    }
+                    if(deep && copy && (isPlainObject(copy) || (copyIsArray = isArr(copy)))){
+                        if(copyIsArray){
+                            copyIsArray = false;
+                            clone = src && isArr(src) ? src : [];
+                        }else {
+                            clone = src && isPlainObject(src) ? src : {};
+                        }
+                        target[p] = extend(deep, clone, copy);
+                    }else {
+                        target[p] = copy;
+                    }
+
+                }
+            }
+
+        }
+
+        return target;
+    }
+
+
+    function Event(){
+        this.callbacks = {};
+    }
+    Event.prototype = {
+        constructor: Event,
+        on: function(type, fn){
+            if(!this.callbacks[type]) this.callbacks[type] = [];
+            this.callbacks[type].push(fn);
+
+            return this;
+        },
+
+        trigger: function(type, data){
+            var callbacks = this.callbacks[type];
+            if(callbacks){
+                for(var i =0, len=callbacks.length; i<len; i++){
+                    typeof callbacks[i] === 'function' && callbacks[i].call(this, data);
+                }
+            }
+
+            return this;
+        },
+
+        off: function(type, handler){
+            if(handler === undefined){
+                delete this.callbacks[type];
+            }else {
+                for(var i= 0, len=callbacks.length; i<len; i++){
+                    if(callbacks[i] === handler){
+                        callbacks.splice(1, i);
+                        return this;
+                    }
+                }
+
+                return this;
+            }
+
+        },
+
+        once: function(type, fn){
+            var that = this;
+            var wrapper = function(){
+                fn.apply(that, arguments);
+                that.off(type, wrapper);
+            }
+
+            this.on(type, wrapper);
+        }
+    }
+
+    function _index(el){
+        var i = 0,
+                pre;
+        while(pre = el.previousSibling){
+            if(pre.nodeType === 1){
+                i++
+            }
+            el = pre;
+        }
+        return i;
+    }
+
+    function Slider(el, options){
+        Event.apply(this, arguments);
+        this.init.apply(this, arguments);
+
+
+    }
+
+    var IMG_CLASS = 'slider-img',
+            LOADING_CLASS = 'slider-loading',
+            NAV_LIST_CLASS = 'slider-nav-list',
+            NAV_ITEM_CLASS = 'slider-nav-item';
+
+
+    Slider.prototype = {
+        constructor: Slider,
+        defaultOptions: {
+            imgClass: '',
+            loadingClass: '',
+            navListClass: '',
+            navItemClass: '',
+            nav: true,
+            auto: true,
+            playTimer: 3000
+        },
+
+        init: function(el, options){
+            if(Array.isArray(options)){
+                options = {data: options}
+            }
+
+            this.options = extend({}, this.defaultOptions, options);
+            this.el = el;
+            this.data = this.options.data;
+            this.activeIndex = 0;
+            this._create();
+            this.show();
+            this._event();
+
+            if(this.options.auto) this._autoPlay();
+        },
+
+        _create: function(){
+            this._createImg();
+            this._createLoading();
+            if(this.options.nav) this._createList();
+        },
+
+        _createFactory: function(el, parent, callback){
+            if(isFunc(parent)){
+                callback = parent;
+                parent = this.el;
+            }
+            var elem = document.createElement(el);
+            parent.appendChild(elem);
+            if(isFunc(callback)) callback.call(this, elem);
+        },
+
+        _createLoading: function(){
+            this._createFactory('span', function(loading){
+                this.loading = loading;
+                this.loading.className = this.options.loadingClass + ' ' + LOADING_CLASS;
+                this._toggleLoading(false);
+            })
+        },
+
+        _createImg: function(){
+            this._createFactory('img', function(img){
+                this.img = img;
+                this.img.className = this.options.imgClass + ' ' + IMG_CLASS;
+
+
+            })
+        },
+
+
+        _createList: function(){
+            this._createFactory('ul', function(list){
+                var navArr = [];
+                this.navList = list;
+                this.navList.className = this.options.navListClass + ' ' + NAV_LIST_CLASS;
+
+                for(var i= 0, len=this.data.length; i<len; i++){
+                    navArr.push('<li class="'+ this.options.navItemClass + ' ' + NAV_ITEM_CLASS +'"></li>');
+                }
+
+                this.navList.innerHTML = navArr.join('');
+            })
+        },
+
+        _autoPlay: function(){
+            var that = this;
+            this._timer = setInterval(function(){
+                that.activeIndex++;
+                if(that.activeIndex >= that.data.length){
+                    that.activeIndex = 0;
+                }
+                that.show(function(){
+
+                });
+
+            }, this.options.playTimer)
+        },
+
+
+
+
+
+
+        show: function(index, callback){
+            var isCallback = false;
+            if(index == undefined || (isCallback = isFunc(index))){
+                if(isCallback) callback = index;
+                index = this.activeIndex;
+            }
+
+            var src = this.data[index],
+                    that = this;
+            if(src){
+                that._toggleLoading(false);
+                this.activeIndex = index;
+                this.img.onload = function(){
+                    that._toggleLoading(false);
+                }
+                this.img.src = src;
+
+                var active = this.navList.querySelector('.active.' + NAV_ITEM_CLASS);
+                if(active) active.classList.remove('active');
+
+                active = this.navList.querySelectorAll('.' + NAV_ITEM_CLASS)[this.activeIndex];
+                if(active) active.classList.add('active');
+
+
+                isFunc(callback) && callback.call(this);
+
+                that.trigger('afterShow');
+            }
+        },
+        _event: function(){
+            var that = this;
+            if(this.options.nav){
+                EventUtil.on(this.navList, 'click', '.' + NAV_ITEM_CLASS, function(e){
+                    var index = _index(this);
+                    that.show(index);
+                });
+            }
+
+            EventUtil.on(this.el, 'mouseover', function(){
+                clearInterval(that._timer);
+            });
+
+            EventUtil.on(this.el, 'mouseout', function(){
+                that._autoPlay();
+            });
+        },
+
+        _toggleLoading: function(status){
+            this.loading.style.display = status ? 'block' : 'none';
+        }
+    }
+
+    extend(Slider.prototype, Event.prototype);
+
+    var EventUtil = {
+        getEvent: function(e){
+            return e || window.event;
+        },
+
+        getTarget: function(e){
+            return e.target || e.srcElement;
+        },
+
+        on: function(el, type, child, fn){
+            if(typeof child === 'function'){
+                fn = child;
+            }
+
+            if(el.addEventListener){
+                var wrapper;
+                if(arguments.length === 4){
+                    wrapper = function(e){
+                        var target = e.target;
+                        while(target !== el){
+                            if(target.matches(child)){
+                                fn.call(target, e);
+                                break;
+                            }
+                            target = target.parentNode;
+                        }
+
+                    }
+                }else {
+                    wrapper = fn;
+                }
+                el.addEventListener(type, wrapper, false);
+
+                return wrapper;
+            }else if(el.attachEvent) {
+                var wrapper;
+
+                if(arguments.length === 4){
+                    wrapper = function(){
+                        var event = window.event;
+                        event.target = event.srcElement;
+                        var target = event.target;
+                        while(target !== el){
+                            if(target.matches(child)){
+                                fn.call(target, event);
+                                break;
+                            }
+                            target = target.parentNode;
+                        }
+
+                    }
+                }else{
+                    wrapper = function(e){
+                        var event = window.event;
+                        event.target = event.srcElement;
+                        fn.call(el, event);
+                    }
+                }
+
+                el.attachEvent('on' + type, wrapper);
+
+                return wrapper;
+            }
+        },
+
+        off: function(el, type, fn){
+            if(el.addEventListener){
+                el.removeEventListener(type, fn, false);
+            }else if(el.attachEvent){
+                el.detachEvent('on' + type, fn);
+            }
+        },
+
+        preventDefault: function(e){
+            if(e.preventDefault){
+                e.preventDefault();
+            }else if('returnValue' in e){
+                e.returnValue = false;
+            }
+        },
+
+        stopPropagation: function(e){
+            if(e.stopPropagation){
+                e.stopPropagation();
+            }else if('cancelBubble' in e){
+                e.cancelBubble = true;
+            }
+        }
+    }
+
+    var aa = new Slider(document.querySelector('.slider'), data);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>flex</title>
+</head>
+<style>
+    /*.container{*/
+        /*display:flex;*/
+        /*flex-direction: row;*/
+        /*flex-wrap: wrap;*/
+        /*flex-flow: row wrap;*/
+        /*justify-content: center;*/
+        /*align-items: center;*/
+        /*align-content: space-between;*/
+    /*}*/
+
+    /*.item{*/
+        /*order: 1;*/
+        /*flex-grow: 2;*/
+        /*flex-shrink: 1;*/
+        /*flex: 0 1 auto;*/
+        /*align-self: center;*/
+    /*}*/
+
+    .container{
+        min-height: 100vh;
+        display:flex;
+        flex-direction:column;
+        align-content: space-between;
+    }
+
+    header, article, footer{
+        border: 1px solid crimson;
+    }
+    header, footer{
+        padding:30px 50px;
+    }
+    article{
+        flex:1;
+    }
+
+</style>
+<body>
+
+<div class="container">
+    <header>header</header>
+    <article>
+        之前那个隐藏的方法太糟糕了<br />这个更好一些.
+    </article>
+    <footer>footer</footer>
+
+</div>
+</body>
+</html>

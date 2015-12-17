@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>斐波那契</title>
+</head>
+<body>
+<script>
+    fib.res = {};
+    function fib(n){
+        if(n === 0 || n === 1){
+            return n;
+        }
+        var res = fib.res;
+        return res[n] ? res[n] : (res[n] = fib(n-1) + fib(n-2))
+    }
+
+    function fib2(n){
+        var f0 = 0,
+                f1 = 1,
+                f2,
+                i;
+
+        if(n < 2){
+            return n;
+        }
+        for(i=2; i<=n; i++){
+            f2 = f0 + f1;
+            f0 = f1;
+            f1 = f2;
+        }
+
+        return f2;
+    }
+</script>
+
+</body>
+</html>

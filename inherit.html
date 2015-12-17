@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<input type="text" id="input"/>
+<div id="output">
+
+</div>
+<script>
+
+
+
+    function createPerson(name, age, job){
+        var o = {};
+        o.name = name;
+        o.age = age;
+        o.job = job;
+        o.sayName = function(){
+            alert(this.name);
+        }
+
+        return o;
+    }
+
+    function Person(name, age, job){
+        this.name = name;
+        this.age = age;
+        this.job = job;
+
+        if(typeof this.sayName !== 'function'){
+            Person.prototype.sayName = function(){
+                console.log(this.name);
+            }
+        }
+    }
+
+    function specialArr(){
+        var arr = [];
+        arr.push.apply(arr, arguments);
+        arr.toPipedString = function(){
+            return this.join('|');
+        }
+
+        return arr;
+    }
+
+    function Sup(){
+        this.prop = true;
+    }
+    Sup.prototype.getProp = function(){
+        console.log(this.prop);
+    }
+
+    function Sub(){
+        this.subProp = false;
+    }
+
+    Sub.prototype = new Sup();
+    console.log(new Sub().setProp);
+
+    Sup.prototype.setProp = function(val){
+        this.prop = val;
+    }
+
+    function SuperType(){
+        this.colors = ['red', 'blue', 'green'];
+    }
+
+    SuperType.prototype.sayName = function(){
+        console.log(this.colors);
+    }
+
+    function SubType(){
+        SuperType.call(this);
+    }
+
+    function object(o){
+        function F(){}
+        F.prototype = o;
+        return new F();
+    }
+
+    function inheritPrototype(subType, superType){
+        var prototype = object(superType.prototype);
+        prototype.constructor = subType;
+        subType.prototype = prototype;
+    }
+
+    document.addEventListener('mousewheel', function(event){
+        console.log(event.wheelDelta);
+    }, false)
+
+    document.getElementById('input').addEventListener('textInput', function(e){
+        console.log(e.data);
+    })
+
+    document.body.addEventListener('DOMAttrModified', function(e){
+        console.log(e);
+    })
+
+    function handleTouchEvent(event){
+        if(event.touches.length === 1){
+            var output = document.getElementById('output');
+            switch(event.type){
+                case 'touchstart':
+                    output.innerHTML = 'Touch started ( '+ event.touches[0].clientX + ',' + event.touches[0].clientY +' )';
+                    break;
+                case 'touchend':
+                    output.innerHTML = 'Touch end ( '+ event.changedTouches[0].clientX + ',' + event.changedTouches[0].clientY +' )';
+                    break;
+                case 'touchmove':
+                    output.innerHTML = 'Touch move ( '+ event.changedTouches[0].clientX + ',' + event.changedTouches[0].clientY +' )';
+                    break;
+            }
+        }
+    }
+    document.addEventListener('touchstart', handleTouchEvent)
+
+
+
+
+
+</script>
+</body>
+</html>

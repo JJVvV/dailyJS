@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ready</title>
+    <script>
+
+        function ready(fn){
+            if(document.addEventListener){
+                document.addEventListener('DOMContentLoaded', function l(){
+                    document.removeEventListener('DOMContentLoaded', l, false);
+
+                    fn();
+                }, false);
+            }else if(document.attachEvent){
+                document.attachEvent('onreadystatechange', function l(){
+                    if(document.readyState == 'complete'){
+                        document.detachEvent('onreadystatechange', l);
+                        fn();
+                    }
+                });
+            }
+        }
+
+        var  ready2 = function(){
+//        if(!ready2.list) ready2.list = [];
+            var list = [];
+
+
+            function completed(){
+                detach();
+                done();
+            }
+
+
+            function done(){
+                var item;
+                while(item = list.shift()){
+                    typeof item === 'function' && item.call(document);
+                }
+
+                list = null;
+            }
+
+            function detach(){
+                if ( document.addEventListener ) {
+                    document.removeEventListener( "DOMContentLoaded", completed, false );
+                    window.removeEventListener( "load", completed, false );
+
+                } else {
+                    document.detachEvent( "onreadystatechange", completed );
+                    window.detachEvent( "onload", completed );
+                }
+            }
+
+            if(document.addEventListener){
+                document.addEventListener('DOMContentLoaded', completed, false);
+                window.addEventListener('load', completed, false)
+            }else {
+                document.attachEvent('onreadystatechange', completed);
+                window.attachEvent('onload', completed)
+            }
+
+            return function(fn){
+                if(document.readyState === 'complete'){
+                    fn();
+                    return;
+                }
+
+                list.push(fn);
+
+            }
+
+        }();
+
+
+
+        var whenReady = (function(){
+            var funcs = [];
+            var ready = false;
+
+            function handler(e){
+                if(ready) return;
+
+                if(e.type === 'onreadystatechange' && document.readyState !== 'complete'){
+                    return;
+                }
+
+
+            }
+        })();
+
+
+    </script>
+</head>
+<body>
+    <div id="haha">haha</div>
+</body>
+</html>

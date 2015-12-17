@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Model</title>
+</head>
+<body>
+
+<script>
+    function extend2(){
+        var args = arguments,
+                i = 1,
+                deep = false,
+                target = args[0],
+                length = args.length,
+                p,
+                clone,
+                options,
+                src,
+                copyIsArray,
+                copy;
+
+        if(isBool(args[0])){
+            deep = args[0];
+            target = args[1];
+            i++;
+        }
+
+        if(i === length){
+            return args[0];
+        }
+        if(typeof target !== 'object' && !isFunc(target)){
+            target = {}
+        }
+        for(; i<length; i++){
+            if((options = args[i]) != null){
+                for(p in options){
+                    src = target[p];
+                    copy = options[p];
+                    if(src === copy){
+                        continue;
+                    }
+                    if(deep && copy && (isPlainObject(copy) || (copyIsArray = isArr(copy)))){
+                        if(copyIsArray){
+                            copyIsArray = false;
+                            clone = src && isArr(src) ? src : [];
+                        }else {
+                            clone = src && isPlainObject(src) ? src : {};
+                        }
+                        target[p] = extend2(deep, clone, copy);
+                    }else {
+                        target[p] = copy;
+                    }
+
+                }
+            }
+
+        }
+
+        return target;
+    }
+
+
+    Math.guid = function(){
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+            var r = Math.random()*16|0, v = c == 'x' ? r :  (r&0x3|0x8);
+            return v.toString(16);
+        }).toUpperCase();
+    }
+
+    var Model = {
+        inherited: function(){},
+        created: function(){},
+
+        extend: function(o){
+            var extended = o.extended;
+            for(var p in o){
+                if(o.hasOwnProperty(p)){
+                    this[p] = o[p];
+                }
+            }
+            if(extended) extended(this);
+        },
+
+        include: function(o){
+            var included = o.included;
+            for(var p in o){
+                if(o.hasOwnProperty(p)){
+                    this.prototype[p] = o[p];
+                }
+            }
+            if(included) included(this);
+        },
+
+        prototype: {
+            init: function(){}
+        },
+
+        create: function(){
+            var object = Object.create(this);
+            object.parent = this;
+            object.prototype = object.fn = Object.create(this.prototype);
+
+            object.created();
+            this.inherited(object);
+
+            return object;
+        },
+
+        init: function(){
+            var instance = Object.create(this.prototype);
+            instance.parent = this;
+            instance.init.apply(instance, arguments);
+
+            return instance;
+        }
+    };
+
+    Model.LocalStorage = {
+        saveLocal: function(name){
+            var result = [];
+            for(var i in this.records){
+                result.push(this.records[i]);
+            }
+
+            localStorage[name] = JSON.stringify(result);
+        },
+
+        loadLocal: function(name){
+            var result = JSON.parse(localStorage[name]);
+            this.populate(result);
+        }
+    }
+    //用来保存资源的对象
+    Model.records = {};
+
+
+    //添加属性
+    Model.extend({
+        find: function(){}
+    });
+
+    var Asset = Model.create();
+
+    Asset.extend(Model.LocalStorage);
+
+    Model.include({
+        newRecord: true,
+        create: function(){
+            if(!this.id) this.id = Math.guid();
+            this.newRecord = false;
+            this.parent.records[this.id] = this.dup();
+        },
+
+        destroy: function(){
+            delete this.parent.records[this.id];
+        },
+
+        update: function(){
+            this.parent.records[this.id] = this.dup();
+        },
+
+        save: function(){
+            this.newRecord ? this.create() : this.update();
+        },
+
+        dup: function(){
+            return extend2(true, {}, this);
+        }
+    });
+
+    Model.extend({
+        find: function(id){
+            return this.records[id];
+        },
+
+        created: function(){
+            this.records = {};
+            this.attributes = [];
+        },
+
+        populate: function(values){
+            this.records = {};
+
+            for(var i=0, len=values.length; i<len; i++){
+                var record = this.init(values[i]);
+                record.newRecord = false;
+                this.records[record.id] = record;
+            }
+        },
+
+        toJSON: function(){
+            return this.attributes();
+        }
+    });
+
+    //添加实力属性
+    Model.include({
+        init: function(attrs){
+            if(attrs) this.load(attrs);
+        },
+        load: function(attributes){
+            for(var name in attributes){
+                this[name] = attributes[name];
+            }
+        },
+
+        attributes: function(){
+            var result = {};
+            for(var i in this.parent.attributes){
+                var attr = this.parent.attributes[i];
+                result[attr] = this[attr];
+            }
+
+            result.id = this.id;
+
+            return result;
+        },
+
+        createRemote: function(url, callback){
+            $.post(url, this.attributes(), callback);
+        },
+
+        updateRemote: function(url, callback){
+            $.ajax({
+                url: url,
+                data: this.attributes(),
+                success: callback,
+                type: 'PUT'
+            });
+        }
+    });
+
+
+
+    var asset = Asset.init({name: 'foo.png'});
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

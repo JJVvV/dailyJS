@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>scroll</title>
+    <style>
+        body{
+            height: 2000px;
+        }
+        #test{
+            height: 200px;
+            width: 200px;
+            overflow: scroll;
+        }
+    </style>
+</head>
+<body>
+<div id="test">
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+    <p>那些被风吹起的日子</p>
+</div>
+<script>
+
+    var test = document.getElementById('test');
+    var type = document.mozHidden !== undefined ? 'DOMMouseScroll' : 'mousewheel';
+
+    test.addEventListener(type, function(e){
+        var delta = e.wheelDelta || -e.detail || 0;
+        var scrollTop = this.scrollTop,
+                scrollHeight = this.scrollHeight,
+                clientHeight = this.clientHeight;
+
+        if(delta > 0 && delta> scrollTop || delta < 0 && -delta> scrollHeight - scrollTop - clientHeight){
+            e.preventDefault();
+            this.scrollTop = delta > 0 ? 0 : scrollHeight;
+        }
+    }, false)
+
+</script>
+</body>
+</html>

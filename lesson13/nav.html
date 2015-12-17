@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>nav</title>
+    <style>
+        body{
+            height: 2000px;
+        }
+        #wrap{
+            position:fixed;
+            top:0;
+            width:100%;
+        }
+
+        #topBar{
+            height:28px;
+            background:#92996d;
+            overflow:hidden;
+        }
+
+        #nav{
+            height:50px;
+            background:#9dbdae;
+        }
+
+        #nav li{
+            float:left;
+            color:#fff;
+            padding:10px 20px;
+        }
+        ul{
+            margin:0;
+        }
+
+    </style>
+</head>
+<body>
+<div id="wrap">
+    <div id="topBar"></div>
+    <div id="nav">
+        <ul>
+            <li>hello</li>
+            <li>hello</li>
+            <li>hello</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+
+    var animate = {
+        scrollTop: function(){
+            return document.documentElement.scrollTop || document.body.scrollTop;
+        },
+
+        currentStyle: function(obj, attr){
+            return parseInt(obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj, null)[attr])
+        },
+
+        fixed: function(element){
+            element.style.position = 'fixed';
+        },
+
+        doMove: function(obj, iTarget, callback){
+            clearInterval(obj.timer);
+
+            obj.timer = setInterval(function(){
+                var iCur = animate.currentStyle(obj, 'height'),
+                        iSpeed = (iTarget - iCur) / 5;
+                iSpeed = iSpeed > 0  ? Math.ceil(iSpeed) : Math.floor(iSpeed);
+                iTarget == iCur ? (clearInterval(obj.timer), callback && callback(obj)) : obj.style.height = iSpeed + iCur + 'px';
+            }, 30);
+        }
+    }
+
+    window.onload = function(){
+        var oWrap = document.getElementById('wrap'),
+                oTopBar = document.getElementById('topBar'),
+                oNav = document.getElementById('nav'),
+                fnStatus = function(status){
+                    !!status ?
+                            (function(){
+                                oNav.className = 'hide';
+                                animate.doMove(oTopBar, 4);
+                                animate.doMove(oNav, 30)
+                            })():
+                            (function(){
+                                animate.doMove(oTopBar, 28);
+                                animate.doMove(oNav,50, function(){
+                                    this.className = '';
+                                })
+                            })()
+                }
+
+        animate.fixed(oWrap);
+
+        window.onscroll = function(){
+            var iScrollTop = animate.scrollTop();
+            fnStatus(iScrollTop > 100);
+
+        }
+
+        document.onmouseover = function(ev){
+            var oEv = ev || event,
+                    iScrollTop = animate.scrollTop(),
+                    oTarget = oEv.target || oEv.srcElement,
+                    contains = function(){
+                        if(oWrap.contains){
+                            return oWrap.contains(oTarget)
+                        }else if(oWrap.compareDocumentPosition){
+                            return !!(oWrap.compareDocumentPosition(oTarget) & 16)
+                        }
+                    }();
+
+            fnStatus(!contains && iScrollTop > 0)
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

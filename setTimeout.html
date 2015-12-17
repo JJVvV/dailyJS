@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<ul id="list">
+    <li>haha</li>
+    <li>heeh</li>
+    <li class="has-child">babala
+        <ul id="child" style="display:none;">
+            <li>child-item</li>
+            <li>child-item</li>
+        </ul>
+    </li>
+</ul>
+
+
+<script src="//cdn.bootcss.com/jquery/3.0.0-alpha1/jquery.js"></script>
+
+<script>
+
+    (function($){
+        $.fn.hoverDelay = function(options){
+            var defaults = {
+                hoverDuring: 200,
+                outDuring: 200,
+                hoverEvent: function(){
+                    $.noop();
+                },
+                outEvent: function(){
+                    $.noop();
+                }
+            };
+
+            var sets = $.extend(defaults, options || {});
+            var hoverTimer, outTimer;
+
+            return $(this).each(function(){
+                $(this).hover(function(){
+                    clearTimeout(outTimer);
+                    clearTimeout(hoverTimer)
+                    hoverTimer = setTimeout(sets.hoverEvent.bind(this), sets.hoverDuring);
+                }, function(){
+                    clearTimeout(hoverTimer);
+                    clearTimeout(outTimer);
+                    outTimer = setTimeout(sets.outEvent.bind(this), sets.outDuring);
+                });
+            });
+        }
+    })(jQuery);
+
+
+    $('#list > li.has-child').hoverDelay({
+        hoverEvent: function(){
+            $(this).find('ul').show();
+        },
+        outEvent: function(){
+            $(this).find('ul').hide();
+        }
+    });
+
+
+
+
+
+
+</script>
+</body>
+</html>

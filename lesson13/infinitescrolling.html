@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>infinite scrolling</title>
+    <style>
+
+        img{
+            max-width:100px;
+        }
+        ul{
+            list-style:none;
+            padding:0;
+            position:absolute;
+            margin:0;
+        }
+        li{
+            width:100px;
+            height:100px;
+            overflow:hidden;
+        }
+        #box{
+            position:relative;
+            width:100px;
+            padding:10px;
+            border:1px solid #92996d;
+            height:510px;
+        }
+        #box > div{
+            overflow:hidden;
+            height:480px;
+            position:absolute;
+            width:100%;
+            top:50px;
+        }
+
+        .up{
+            cursor:pointer;
+            display:inline-block;
+            border:1px solid #92996d;
+        }
+        .down{
+            cursor:pointer;
+            display:inline-block;
+            border:1px solid #92996d;
+        }
+
+
+    </style>
+</head>
+<body>
+
+
+<div id="box">
+    <span class="up">up</span>
+    <span class="down">down</span>
+    <div>
+        <ul class="list">
+            <li><img  alt="" src="../image/books.jpg"></li>
+            <li><img  alt="" src="../image/cappuccino.jpg"></li>
+            <li><img  alt="" src="../image/control.jpg"></li>
+            <li><img  alt="" src="../image/cop.jpg"></li>
+            <li><img  alt="" src="../image/country.jpg"></li>
+            <li><img  alt="" src="../image/fashion.jpg"></li>
+        </ul>
+    </div>
+</div>
+
+<script>
+
+    function $ (id) {
+        return typeof id === "string" ? document.getElementById(id) : id;
+    }
+
+    //获取tagName
+    function $$ (elem, oParent) {
+        return (oParent || document).getElementsByTagName(elem);
+    }
+
+    //获取class
+    function $$$ (className, oParent) {
+        var aClass = [];
+        var reClass = new RegExp("(//s|^)" + className + "($|//s)");
+        var aElem = $$("*", oParent);
+        for (var i = 0; i < aElem.length; i++) reClass.test(aElem[i].className) && aClass.push(aElem[i]);
+        return aClass
+    }
+    //初始化对象
+
+    function getStyle(element, attr){
+        return getComputedStyle(element, null)[attr];
+    }
+    function Roll(){
+        this.initialize.apply(this, arguments)
+    }
+
+    Roll.prototype = {
+        initialize: function(obj){
+            var _this = this;
+            this.obj = $(obj);
+            this.oUp = $$$('up', this.obj)[0];
+            this.oDown = $$$('down', this.obj)[0];
+            this.oList = $$$('list', this.obj)[0];
+            this.aItem = this.oList.children;
+            this.timer = null;
+            this.iHeight = this.aItem[0].offsetHeight + parseInt(getStyle(this.aItem[0], 'marginTop')) + parseInt(getStyle(this.aItem[0], 'marginBottom'));
+            this.oUp.onclick = function(){
+                _this.up();
+            }
+
+            this.oDown.onclick = function(){
+                _this.down();
+            }
+
+        },
+
+        up: function(){
+            this.oList.insertBefore(this.aItem[this.aItem.length - 1], this.oList.firstChild);
+            this.oList.style.top = -this.iHeight + 'px';
+            this.doMove(0);
+        },
+
+        down: function() {
+            this.doMove(-this.iHeight, function() {
+                this.oList.appendChild(this.aItem[0]);
+                this.oList.style.top = 0;
+            });
+        },
+
+        doMove: function(iTarget, callback){
+            var _this = this;
+            clearInterval(this.timer);
+
+            this.timer = setInterval(function(){
+                var iSpeed = (iTarget - _this.oList.offsetTop) / 5;
+                iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed);
+               parseInt(getStyle(_this.oList, 'top')) == iTarget ? (clearInterval(_this.timer), callback && callback.apply(_this)) : (_this.oList.style.top = _this.oList.offsetTop +iSpeed + 'px');
+            }, 30)
+        }
+    }
+
+    new Roll('box');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

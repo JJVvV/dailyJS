@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jquery</title>
+</head>
+<body>
+<script>
+    var jQuery = function(selector, context){
+        return new jQuery.prototype.init(selector, context);
+    }
+
+    jQuery.fn = jQuery.prototype = jQuery.prototype.init.prototype;
+
+    jQuery.prototype = {
+
+        constructor: jQuery,
+
+        init: function(){
+            return this;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>serialize</title>
+</head>
+<body>
+<form action="">
+    <p><input type="text" name="name" />name</p>
+    <p>
+        <select name="age" multiple>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </p>
+    <p><input type="radio" name="sex" checked value="boy" />boy
+        <input type="radio" name="sex" value="girl" />girl
+    </p>
+
+</form>
+<script src="jquery.js"></script>
+<script>
+    var aa = $('form');
+    var bb = aa.serialize();
+
+
+    var rsubmittable = /input|select|textarea/i;
+    var rsubmitterTypes = /button|submit|file|image|reset/i;
+    var rcheckedTypes = /checkbox|radio/i;
+    var serialize = function(ele){
+        var elements = makeArray(ele.elements);
+        var res = [];
+        elements = elements.filter(function(item){
+            var type = item.type;
+            return item.name &&
+                    !item.disabled &&
+                    rsubmittable.test(item.nodeName) &&
+                    !rsubmitterTypes.test(item.type) &&
+                    (item.checked || !rcheckedTypes.test(item.type))
+
+        });
+
+        elements.forEach(function(elem, i){
+            var val = getVal(elem);
+            var name = elem.name;
+            if(Array.isArray(val)){
+                for(var i=0; i<val.length; i++){
+                    res.push(seri(name, val[i]));
+                }
+            }else{
+                res.push(seri(name, val));
+            }
+        });
+
+        return res.join('&');
+
+
+    }
+
+    function seri(name, value){
+        return encodeURIComponent(name + '=' + value);
+    }
+
+
+    function makeArray(likeArray){
+        if(length in likeArray && typeof likeArray === 'object'){
+            return Array.prototype.slice.call(likeArray);
+        }
+        return [];
+    }
+
+    function getVal(elem){
+        if(elem.nodeName.toUpperCase() === 'SELECT'){
+            return makeArray(elem.selectedOptions).map(function(item){
+                return item.value || item.textContent || item.innerText;
+            });
+        }
+
+        return elem.value;
+    }
+
+
+</script>
+</body>
+</html>

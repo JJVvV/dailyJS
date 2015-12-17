@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<script>
+
+    STK.register("lib.card.popcard", function(a) {
+                var b = 400
+                        , c = 200;
+                return function(d) {
+                    var e = {}, f, g, h, i = !1, j = a.core.json.merge({
+                        autoShow: !0,
+                        autoHide: !0,
+                        priority: "tbrl",
+                        attribute: "usercard",
+                        out: document.body,
+                        showWithAni: null ,
+                        hideWithAni: null ,
+                        showWithSetWidth: !1
+                    }, d), k = a.ui.card(j);
+                    k.setContent('<div style="width:300px;height:120px;padding:10px;"></div>');
+                    k.on("beforeShow", function() {
+                                k.getBox().style.pointerEvents = "none"
+                            }
+                    ).on("shown", function() {
+                                k.getBox().style.pointerEvents = ""
+                            }
+                    );
+                    var l = function(a, b) {
+                                if (a.type != "mouseout" && a.type != "mouseover")
+                                    return !1;
+                                var c = a.relatedTarget ? a.relatedTarget : a.type == "mouseout" ? a.toElement : a.fromElement;
+                                while (c && c != b)
+                                    c = c.parentNode;
+                                return c != b
+                            }
+                            , m = function(c, d) {
+                                clearTimeout(h);
+                                h = setTimeout(function() {
+                                            a.custEvent.fire(e, "beforeShow", [c, d]);
+                                            if (j.autoShow) {
+                                                k.showByTarget(c, d);
+                                                a.custEvent.fire(e, "show", [c, d])
+                                            }
+                                        }
+                                        , b)
+                            }
+                            , n = function() {
+                                if (i != !1) {
+                                    clearTimeout(h);
+                                    h = setTimeout(function() {
+                                                a.custEvent.fire(e, "beforeHide");
+                                                if (j.autoHide) {
+                                                    k.hide();
+                                                    a.custEvent.fire(e, "hide")
+                                                }
+                                            }
+                                            , c)
+                                }
+                            }
+                            ;
+                    a.custEvent.define(e, ["beforeShow", "show", "beforeHide", "hide"]);
+                    var o = function() {
+                                i = !0
+                            }
+                            , p = function() {
+                                i = !1
+                            }
+                            , q = function(b) {
+                                var c = a.fixEvent(b).target;
+                                g = c;
+                                if (f != c) {
+                                    if (a.contains(k.getBox(), c)) {
+                                        clearTimeout(h);
+                                        return
+                                    }
+                                    var d = c.getAttribute(j.attribute);
+                                    d ? m(c, b) : n();
+                                    f = c
+                                }
+                            }
+                            , r = function(a) {
+                                l(a || window.event, k.getBox()) && clearTimeout(h)
+                            }
+                            , s = function(a) {
+                                l(a || window.event, k.getBox()) && n()
+                            }
+                            , t = function(b) {
+                                var c = a.fixEvent(b).target;
+                                a.contains(k.getBox(), c) || n();
+                                var d = c.getAttribute && c.getAttribute(j.attribute);
+                                d && a.contains(j.out, c) && m(c, b);
+                                f = c;
+                                g = c
+                            }
+                            , u = function(b) {
+                                b = a.fixEvent(b);
+                                var c = b.target;
+                                c.getAttribute(j.attribute) && a.preventDefault(b)
+                            }
+                            , v = function(b) {
+                                var c = a.fixEvent(b).target;
+                                a.contains(k.getBox(), c) || k.hide()
+                            }
+                            , w = function() {
+                                if (a.lib.kit.touch.cantouch) {
+                                    a.addEvent(document.body, "tap", t);
+                                    a.addEvent(j.out, "click", u)
+                                } else {
+                                    a.addEvent(j.out, "mousemove", q);
+                                    a.addEvent(k.getBox(), "mouseover", r);
+                                    a.addEvent(k.getBox(), "mouseout", s);
+                                    a.addEvent(j.out, "click", v)
+                                }
+                                a.custEvent.add(k, "show", o);
+                                a.custEvent.add(k, "hide", p)
+                            }
+                            , x = function() {
+                                w()
+                            }
+                            , y = function() {
+                                if (a.lib.kit.touch.cantouch) {
+                                    a.addEvent(document.body, "tap", t);
+                                    a.addEvent(j.out, "click", u)
+                                } else {
+                                    a.removeEvent(out, "mousemove", r);
+                                    a.removeEvent(k.getBox(), "mouseover", r);
+                                    a.removeEvent(k.getBox(), "mouseout", s);
+                                    a.removeEvent(j.out, "click", v)
+                                }
+                                a.custEvent.remove(k, "show", o);
+                                a.custEvent.remove(k, "hide", p);
+                                k.destroy()
+                            }
+                            ;
+                    x();
+                    e.card = k;
+                    e.attribute = j.attribute;
+                    e.mouseTarget = function() {
+                        return g
+                    }
+                    ;
+                    e.isShowCard = function() {
+                        return i
+                    }
+                    ;
+                    e.showCard = m;
+                    e.hideCard = n;
+                    e.destroy = y;
+                    return e
+                }
+            }
+    );
+</script>
+</body>
+</html>

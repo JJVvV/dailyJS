@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script src="immutable.js"></script>
+
+
+<script>
+
+    var map1 = Immutable.Map({a:1, b:2, c:3});
+    var map2 = map1.set('b', 50);
+
+
+    var nested = Immutable.fromJS({a: {b: {c: [3, 4, 5]}}});
+
+    var nested2 = nested.mergeDeep({a: {b:{c:{a:2}},e: {d: 6}}});
+
+</script>
+</body>
+</html>

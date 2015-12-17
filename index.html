@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="./jquery.js"></script>
+</head>
+<body>
+<div class="div first"></div>
+<ul id="test">
+    <li>这是第一条</li>
+    <li>这是第二条</li>
+    <li>这是第三条</li>
+</ul>
+
+<form action="">
+    <input type="text" name="name" />
+    <input type="text" namej="age" />
+    <input type="radio" name="sex" value="boy" />
+    <input type="radio" name="sex" value="girl" />
+
+    <input type="checkbox" name="job" value="student" />
+    <input type="checkbox" disabled name="job" value="frontend"  />
+
+    <select name="select" id="select">
+        <option value="first">first</option>
+        <option value="second">second</option>
+        <option value="third">third</option>
+    </select>
+    <input type="submit" value="submit" />
+</form>
+<script>
+
+    var class2type = {
+            '[object Array]': "array",
+            '[object Boolean]': "boolean",
+            '[object Date]': "date",
+            '[object Error]': "error",
+            '[object Function]': "function",
+            '[object Number]': "number",
+            '[object Object]': "object",
+            '[object RegExp]': "regexp",
+            '[object String]': "string"
+    }
+    $(function(){
+        $('form').on('submit', function(e){
+            console.log($(this).serialize());
+
+            e.preventDefault();
+        })
+    });
+
+    var li = document.getElementsByTagName('li')[0];
+    li.oninput = function(e){
+        console.log('aaa');
+        debugger;
+    }
+
+    li.onchange = function(e){
+        console.log('aaa');
+        debugger;
+    }
+
+    Object.prototype.clone = function(){
+        var o;
+        if(this.constructor === Array || this.constructor === Object){
+            o = new this.constructor;
+
+            for(var e in this){
+                if(this.hasOwnProperty(e)){
+                    o[e] = typeof this[e] === 'object' ? this[e].clone() : this[e]
+                }
+            }
+            return o;
+
+        }
+
+        return this.valueOf();
+
+    }
+
+
+    function deRepeat(arr){
+        var buf = {};
+        var newArr = [];
+        var index = 0;
+        arr.forEach(function(item){
+            if(buf[item] === undefined){
+                buf[item] = 1;
+                newArr[index++] = item;
+            }
+        })
+        return newArr;
+    }
+
+    function Dog(){
+        this.wow = function(){
+            alert('Wow');
+        }
+
+        this.yelp = function(){
+            this.wow();
+        }
+    }
+
+    function MadDog(){
+        this.yelp = function(){
+            var self = this;
+            setTimeout(function(){
+                self.wow();
+            }, 500);
+        }
+    }
+
+    MadDog.prototype = new Dog();
+
+    var test = document.getElementById('test');
+    var lis = test.getElementsByTagName('li');
+    for(var i= 0, len = lis.length; i<len; i++){
+        (function(i){
+            lis[i].onclick = function(){
+                alert(i);
+            }
+        })(i);
+
+    }
+
+
+    var query = function(selector){
+        var reg = /(#)?(\.)?(\w+)/img;
+        var regResult = reg.exec(selector);
+        var result = [];
+    }
+
+
+    ;(function(){
+        var _slice = Array.prototype.slice;
+
+        try{
+            _slice.call(document.documentElement);
+        }catch(e){
+            Array.prototype.slice = function(begin, end){
+                end = (typeof end !== 'undefined') ? end: this.length;
+
+                if(Object.prototype.toString.call(this) === '[object Array]'){
+                    return _slice.call(this, begin, end);
+                }
+
+                var i, cloned = [],
+                        size, len = this.length;
+                var start = begin || 0;
+                start = (start >=0) ? start : len + start;
+
+                var upTo = (end) ? end : len;
+                if(end < 0){
+                    upTo = len + end;
+                }
+
+                size = upTo - start;
+
+                if(size > 0){
+                    cloned = new Array(size);
+                    if(this.charAt){
+                        for(i=0; i< size; i++){
+                            cloned[i] = this.charAt(start+i)
+                        }
+                    }else{
+                        for(i=0; i < size; i++){
+                            cloned[i] = this[start + i];
+                        }
+                    }
+
+                }
+
+                return cloned;
+            }
+        }
+
+    })();
+
+    function converToArray(nodes){
+        var array = null;
+
+        try{
+            array = Array.prototype.slice.call(nodes);
+        }catch(e){
+            array = []
+            for(var i= 0, len=nodes.length; i< len; i++){
+                array.push(nodes[i]);
+            }
+        }
+
+        return array;
+    }
+
+    function addEvent(ele, type, handler){
+        if(ele.addEventListener){
+            ele.addEventListener(type, handler, false);
+        }else if(ele.attachEvent){
+            ele['temp'+ type + handler] = handler;
+            ele[type + handler] = function(){
+                ele['temp'+ type + handler].apply(ele, arguments);
+            }
+
+            ele.attachEvent('on'+type, ele[type + handler]);
+        }else{
+            ele['on' + type] = handler;
+        }
+    }
+
+    function addEvent(ele, type, handler){
+        if(ele.addEventListener){
+            addEvent = function(ele, type, handler){
+                ele.addEventListener(type, handler, false);
+            }
+        }else if(ele.attachEvent){
+            addEvent = function(ele, type, handler){
+                ele['temp'+ type + handler] = handler;
+                ele[type + handler] = function(){
+                    ele['temp'+ type + handler].apply(ele, arguments);
+                }
+
+                ele.attachEvent('on'+type, ele[type + handler]);
+            }
+        }else{
+            addEvent = function(ele, type, handler){
+                ele['on' + type] = handler;
+            }
+        }
+    }
+
+    if(typeof Function.prototype.bind === 'undefined'){
+        Function.prototype.bind = function(context){
+            var self = this;
+
+            return function(){
+                return self.apply(context, arguments);
+            }
+        }
+    }
+
+    function ready(fn){
+        if(document.addEventListener) {
+//标准浏览器
+            document.addEventListener('DOMContentLoaded', function() {
+
+//注销事件, 避免反复触发
+                document.removeEventListener('DOMContentLoaded',arguments.callee, false);
+                fn();
+//执行函数
+            }, false);
+        }else if(document.attachEvent) {
+//IE
+            document.attachEvent('onreadystatechange', function() {
+                if(document.readyState == 'complete') {
+                    document.detachEvent('onreadystatechange', arguments.callee);
+                    fn();
+//函数执行
+                }
+            });
+        }
+    };
+
+    ready(function(){console.log('haha')});
+
+    var whenReady = (function(){
+        var funcs = [];
+        var ready = false;
+
+        function handler(e){
+            if(ready) return;
+            if(e.type === 'onreadystatechange' && document.readyState !== 'complete'){
+                return;
+            }
+            for(var i=0; i< funcs.length; i++){
+                funcs[i].call(document);
+            }
+
+            ready = true;
+            funcs = null;
+        }
+
+        if(document.addEventListener){
+            document.addEventListener('DOMContentLoaded', handler, false);
+            document.addEventListener('readystatechange', handler, false);
+            window.addEventListener('load', handler, false)
+        }else if(document.attachEvent){
+            document.attachEvent('onreadystatechange', handler);
+            window.attachEvent('onload', handler);
+        }
+
+        return function whenReady(fn){
+            if(ready){
+                fn.call(document);
+            }else{
+                funcs.push(fn);
+            }
+        }
+    })();
+
+    whenReady(function(){
+        console.log('haha when ready');
+    });
+
+//    function $(selector, context){
+//        return (context || document).querySelectorAll(selector);
+//    }
+//
+//    function $1(selector, context){
+//        return (context || document).querySelector(selector);
+//    }
+
+    (function(ElementPrototype){
+        ElementPrototype.matches = ElementPrototype.matches ||
+                        ElementPrototype.matchesSelector ||
+                        ElementPrototype.webkitMatchesSelector ||
+                        ElementPrototype.msMatchesSelector ||
+                        function(selector){
+                            var node = this,
+                                    nodes = (node.parentNode || document).querySelectorAll(selector),
+                                    i = -1;
+                            while(nodes[i++] && nodes[i] !== node);
+
+                            return !! nodes[i];
+                        }
+    })(Element.prototype);
+
+    function parent(node){
+        return node.parentNode;
+    }
+
+    function getSiblings(el, filter){
+        var siblings = [];
+        el = el.parentNode.firstChild;
+        do{if(!filter || filter(el)){siblings.push(el)}}while(el = el.nextSibling);
+
+        return siblings;
+    }
+
+    function getNextSiblings(el, filter){
+        var siblings = [];
+        el = el.nextSibling;
+        while(el){
+            if(!filter || filter(el)){
+                siblings.push(el);
+            }
+            el = el.nextSibling;
+        }
+
+        return siblings;
+    }
+
+    function getNextSiblings(el, filter){
+        var siblings = [];
+        while(el = el.nextSibling){
+            if(!filter || filter(el)){
+                siblings.push(el);
+            }
+        }
+
+        return siblings;
+    }
+
+    function getPreviousSiblings(el, filter){
+        var siblings = [];
+        while(el = el.previousSibling){
+            if(!filter || filter(el)){
+                siblings.push(el);
+            }
+        }
+
+        return siblings;
+    }
+
+    ;(function(ElementPrototype){
+        ElementPrototype.closest = ElementPrototype.closest ||
+                        function(selector){
+                            var el = this;
+                            //document 无 matches
+                            while(el.matches && !el.matches(selector)){
+                                el = el.parentNode;
+                            }
+
+                            return el.matches ? el : null;
+                        }
+    })(Element.prototype);
+
+    function hasClass(el, className){
+        return el.classList ? el.classList.contains(className) : new RegExp('(^|\\s+)' + className + '($|\\s+)').test(el.className);
+    }
+
+    function addClass(el, className){
+        if(el.classList) el.classList.add(className);
+        else if(!hasClass.apply(this, arguments)) el.className += ' ' + className;
+    }
+
+    function removeClass(el, className){
+        if(el.classList)el.classList.remove(className);
+        else el.className = el.className.replace(new RegExp('(^|\\s+)' + className + '($|\\s+)', 'g'), ' ');
+    }
+
+    function getStyle(el, props){
+        return (getComputedStyle ? getComputedStyle(el, null) : el.currentStyle)[props];
+    }
+
+    function css(el, name, value){
+        var styles;
+        if(typeof name === 'object'){
+            styles = name;
+            for(var prop in styles){
+                el.style[prop] = styles[prop];
+            }
+        }else if(typeof value === 'undefined'){
+            return getStyle(el, name);
+        }else{
+            el.style[name] = value;
+        }
+
+    }
+
+    function getCORS(url, success){
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.onload = success;
+        xhr.send();
+        return xhr;
+    }
+
+    getCORS('http://hello', function(res){
+        console.log(res);
+    });
+
+    function offset(el){
+        var rect = el.getBoundingClientRect(),
+                scrollLeft = window.pageXOffset || document.documentElement.offsetLeft,
+                scrollTop = window.pageYOffset || document.documentElement.offsetTop;
+        return {top: rect.top + scrollTop, left: rect.left + scrollLeft}
+
+    }
+
+    function innerWidth(el){
+        return el.clientWidth;
+    }
+
+    function width(el){
+        return el.offsetWidth
+    }
+    function outerWidth(el){
+        var marginLeft = parseInt(getStyle(el, 'marginLeft')) || 0;
+        var marginRight = parseInt(getStyle(el, 'marginRight')) || 0;
+        return el.offsetWidth + marginLeft + marginRight;
+    }
+    function windowWidth(){
+        return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    }
+
+
+    String.prototype.escapeHTML = function(){
+        return this.replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+    }
+
+
+    function makeArray(arr, results){
+        var ret = results || [];
+
+        if(arr != null){
+            if(isArraylike(Object(arr))){
+                merge(ret,
+                    typeof arr === 'string' ?
+                            [arr] : arr
+                );
+            }else {
+                push.call(ret, arr);
+            }
+        }
+    }
+
+    function merge(first, second){
+        var len = +second.length,
+                j= 0,
+                i=first.length;
+        while(j<len){
+            first[i++] = second[j++];
+        }
+
+        if(len !== len){
+            while(second[j] !== undefined){
+                first[i++] = second[j++];
+            }
+        }
+
+        first.length = i;
+
+        return first;
+    }
+
+    function isArraylike(obj){
+        var length = 'length' in obj && obj.length,
+                type = getType(obj);
+
+        if(type === 'function' || isWindow(obj)){
+            return false;
+        }
+
+        if(obj.nodeType === 1 && length){
+            return true;
+        }
+
+        return type === 'array' || length === 0 ||
+                        typeof length === 'number' && length > 0 && (length - 1) in obj;
+    }
+
+    function isWindow(obj){
+        return obj != null && obj == obj.window;
+    }
+
+    function getType(obj){
+        if(obj == null){
+            return obj + '';
+        }
+        return typeof obj === 'object' || typeof obj === 'function' ?
+                class2type[toString.call(obj)] || 'object' :
+                typeof obj;
+    }
+
+
+    function serializeArray(ele){
+        var elements = makeArray(ele.elements);
+
+        elements.filter(function(item){
+            var type = item.type;
+            return item.name && !item.disabled &&
+                    /^(?:input|select|textarea|keygen)/i.test(item.nodeName) &&
+                    !/^(?:submit|button|image|reset|file)$/i.test(type) &&
+                    (item.checked || /^(?:checkbox|radio)$/i.test(type));
+        }).map(function(item){
+            var val = 'haha';
+        });
+
+    }
+
+    function getVal(elem){
+        var hooks, ret, isFunction;
+
+        if(!arguments.length){
+            if(elem){
+                hooks = valHooks[elem.type] || valHooks[elem.nodeName.toLowerCase()];
+
+                if(hooks && 'get' in hooks && (ret = hooks.get(elem, 'value')) !== undefined){
+                    return ret;
+                }
+
+                ret = elem.value;
+
+                return typeof ret === 'string' ?
+                        ret.replace(rreture, '') :
+                        ret == null ? '' : ret;
+            }
+        }
+
+    }
+
+    function valHooks(){
+        return {
+            option: {
+                get: function(elem){
+                    var val = elem.value;
+
+                    return val != null ?
+                            val : elem.text.trim();
+
+                }
+            },
+
+            select: {
+                get: function(elem){
+                    var value, option,
+                            options = elem.options,
+                            index = elem.selectedIndex,
+                            one = elem.type === 'select-one' || index < 0,
+                            values = one ? null : [],
+                            max = one ? index+1 : options.length,
+                            i = index < 0 ? max : one ? index : 0;
+
+                    for ( ; i < max; i++ ) {
+                        option = options[ i ];
+
+                        // oldIE doesn't update selected after form reset (#2551)
+                        if ( ( option.selected || i === index ) &&
+                                    // Don't return options that are disabled or in a disabled optgroup
+                                ( support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null ) &&
+                                ( !option.parentNode.disabled || !jQuery.nodeName( option.parentNode, "optgroup" ) ) ) {
+
+                            // Get the specific value for the option
+                            value = jQuery( option ).val();
+
+                            // We don't need an array for one selects
+                            if ( one ) {
+                                return value;
+                            }
+
+                            // Multi-Selects return an array
+                            values.push( value );
+                        }
+                    }
+
+                    return values;
+                }
+            }
+        }
+    }
+
+    Function.prototype.bind = function(){
+        var self = this,
+                args = [].slice.call(arguments),
+                context = args.pop();
+
+        return function(){
+            return self.apply(context, [].concat(args, [].slice.call(arguments)));
+        }
+    }
+
+    var obj = {
+        name: 'sven'
+    }
+    var func = function(a, b, c, d){
+//        console.log(this.name);
+//        console.log([a, b, c, d]);
+    }.bind(obj, 1, 2);
+    func();
+
+    var func = function(){
+       var a = 1;
+        return function(){
+            a++;
+            console.log(a);
+        }
+    }();
+
+    var Type = {};
+
+    for(var i= 0, type; type=['String', 'Array', 'Number'][i++];){
+        (function(type){
+            Type['is' + type] = function(obj){
+                return Object.prototype.toString.call(obj) == '[object '+ type +']'
+            }
+        })(type);
+    }
+
+    var mult = function(){
+        var a = 1;
+        for(var i= 0, l = arguments.length; i<l; i++){
+            a = a * arguments[i];
+        }
+        return a;
+    }
+
+    var cache = {};
+    var mult = function(){
+        var args = Array.prototype.join.call(arguments, ',');
+        if(cache[args]){
+            return cache[args]
+        }
+        var a = 1;
+        for(var i= 0, l = arguments.length; i<l; i++){
+            a = a * arguments[i];
+        }
+        return cache[args] = a;
+    }
+
+    var mult = function(){
+        var cache = {};
+        var calculate = function(){
+            var a = 1;
+            for(var i= 0, l = arguments.length; i<l; i++){
+                a = a * arguments[i];
+            }
+            return a;
+        }
+       return function() {
+           var args = Array.prototype.join.call(arguments, ',');
+           if (cache[args]) {
+               return cache[args]
+           }
+           return cache[args] = calculate.apply(null, arguments);
+       }
+    }()
+
+    var getSingle = function(fn){
+        var ret;
+
+        return function(){
+            return ret || (ret = fn.apply(this, arguments));
+        }
+    }
+
+    var getScript = getSingle(function(){
+        return document.createElement('script');
+    });
+
+    var getScript1 = getScript();
+    var getScript2 = getScript();
+//    alert(getScript1 === getScript2);
+
+    Function.prototype.before = function(beforeFn){
+        var self = this;
+
+        return function(){
+            beforeFn.apply(this, arguments);
+            return self.apply(this, arguments);
+        }
+    }
+
+    Function.prototype.after = function(afterFn){
+        var self = this;
+
+        return function(){
+            var ret = self.apply(this, arguments);
+            afterFn.apply(this, arguments);
+            return ret;
+        }
+    }
+
+    var func = function(){
+        console.log(2);
+    }
+
+    func = func.before(function(){
+        console.log(1);
+    }).after(function(){
+        console.log(3);
+    });
+
+    func();
+
+    function urlSplit(url){
+        var urlValue = url.split('?').pop();
+        if(!urlValue) return false;
+
+        var arr = urlValue.split('&');
+        var length = arr.length;
+        var obj = {};
+        var name, value, item;
+        var itemArr;
+        while(length--){
+            item = arr[length];
+            itemArr = item.split('=');
+            name = itemArr.shift();
+            value = itemArr.pop();
+            obj[name] = value;
+        }
+
+        return obj;
+    }
+
+    function capitalize(str){
+        var words = str.split(' ');
+        var i=0;
+        for(len = words.length; i<len; i++){
+            words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
+        }
+
+        return words.join(' ');
+    }
+
+    function capitalize2(str){
+        return str.replace(/(^|\s+)([a-z])/g, function(s, s2, s3){
+            debugger;
+            return s2 + s3.toUpperCase();
+        })
+    }
+
+
+
+    //数组顺序扰乱
+    function shuffle(array){
+        var copy = [],
+                length = array.length,
+                n = length,
+                i;
+
+        while(n){
+
+            i = Math.floor(Math.random() * length);
+
+            if(i in array){
+                n--;
+                copy.push(arr[i]);
+                delete array[i];
+            }
+        }
+
+        return copy;
+    }
+
+    function shuffle2(array){
+
+        var copy = [],
+                length = array.length,
+                n = length,
+                i;
+
+        while(array.length){
+
+            i = Math.floor(Math.random() * array.length);
+
+            copy.push(array[i]);
+            array.splice(i, 1);
+        }
+
+        return copy;
+    }
+
+    //数组求交集
+
+    function andArray(arr1, arr2){
+        arr1.filter(function(v){
+            return arr2.indexOf(v) !== -1;
+        });
+    }
+
+    //数组求差集
+
+    function notArray(arr1, arr2){
+        arr1.filter(function(v){
+            return arr2.indexOf(v) === -1;
+        });
+    }
+
+    //生成DOM nodes
+    function gFragment(html, name, properties){
+        var dom, nodes, container;
+
+        if(singleTagRE.test(html)){
+            dom = $()
+        }
+//        if(){
+//
+//        }
+    }
+
+    var isSingleTag = function(){
+        var reg = /^<(\w+)\s+\/?>(?:<\/\1>|)$/;
+        return function(str){
+            return reg.test(str);
+        }
+    }();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    var Zepto = (function(){
+        var $;
+        var zepto = {};
+        //<div>只要检测是这种形式的
+        var fragmentRE = /^\s*<(\w|!)[^>]*>/;
+        //匹配<div /> 或者<div></div> 不带有properties
+        var singleTagRE = /^<(\w+|!)\s*\/?>(?:<\/\1>|)$/;
+        //匹配不是area|br...这些半包围的<div />标签
+        var tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)((\w+)[^>]*)\/>/;
+        var table = document.createElement('table'),
+                tableRow = document.createElement('tr'),
+                containers = {
+                    'tr': document.createElement('tbody'),
+                    'tbody': table, 'thead': table, 'tfoot': table,
+                    'td': tableRow, 'th': tableRow,
+                    '*': document.createElement('div')
+                };
+
+
+
+
+        function Z(dom, selector){
+            var i, len = dom ? dom.length : 0;
+            for(i=0; i < len; i++){
+                this[i] = dom[i];
+                this.length = len;
+                this.selector = selector || '';
+            }
+        }
+
+        zepto.Z = function(dom, selector){
+            return new Z(dom, selector);
+        }
+
+        zepto.isZ = function(obj){
+            return obj instanceof zepto.Z;
+        }
+
+        //处理字符串dom
+        zepto.fragment = function(html, name, properties){
+            var dom, nodes, container;
+
+            if(singleTagRE.test(html)) dom = $(document.createElement(RegExp.$1));
+
+            if(!dom){
+                if(html.replace) html = html.replace(tagExpanderRE, '<$1></$2>');
+                if(name === undefined) name = fragmentRE.test(html) && RegExp.$1;
+                if(!(name in containers)) name = '*';
+
+                container = containers[name];
+                container.innerHTML = '' + html;
+                dom = $.each(slice.call(container.childNodes), function(){
+                    container.removeChild(this);
+                })
+            }
+
+            if(isPlainObject(properties)){
+                nodes = $(dom);
+                $.each(properties, function(key, value){
+                    if(methodAttributes.indexOf(key) > -1){
+                        nodes[key](value)
+                    }
+                });
+            }
+        }
+
+        zepto.init = function(selector, context){
+            var dom;
+
+            if(!selector) return zepto.Z();
+
+            if(typeof selector === 'string'){
+                selector = selector.trim();
+
+                if(selector[0] === '<' && fragmentRE.test(selector)){
+                    dom = zepto.fragment(selector, RegExp.$1, context);
+                }else if(context !== undefined){
+                    return $(context).find(selector);
+                }else{
+                    dom = zepto.qsa(document, selector);
+                }
+            }else if(isFunction(selector)){
+                return $(document).ready(selector);
+            }else if(zepto.isZ(selector)){
+                return selector;
+            }else{
+                if(isArray(selector)){
+                    dom = compact(selector);
+                }else if(isObject(selector)){
+                    dom = [selector], selector = null;
+                }else if(fragmentRE.test(selector)){
+                    dom = zepto.fragment(selector.trim(),RegExp.$1, context), selector = null;
+                }else if(context !== undefined){
+                    return $(context).find(selector);
+                }else{
+                    node = zepto.qsa(document, selector);
+                }
+            }
+
+            return zepto.Z(dom, selector);
+        }
+
+
+
+        $ = function(selector, context){
+            return zepto.init(selector, context);
+        }
+
+        $.fn = {
+            constructor: zepto.Z,
+            length: 0,
+            forEach: []
+        }
+
+        zepto.Z.prototype = Z.prototype = $.fn;
+
+        return $;
+    })();
+
+    function throttle(fn, firstTime, delay){
+        if(typeof arguments[1] === 'number'){
+            delay = firstTime;
+        }
+
+        if(firstTime === undefined || firstTime === null){
+            firstTime = true;
+        }
+
+        if(delay === undefined){
+            delay = 300;
+        }
+
+        var _timer;
+        var _last;
+        var _that = this,
+                args,
+                _now;
+
+        function done(){
+            fn.apply(this, args);
+            _last = _now;
+            clearTimeout(_timer);
+            _timer = null;
+        }
+
+        return function(){
+            args = arguments;
+            _now = +new Date();
+
+            if(firstTime){
+                firstTime = false;
+                fn.apply(this, args);
+                return;
+            }
+
+            _last = _last || +new Date();
+
+            if(delay*2 > _now - _last >= delay){
+                done();
+                return;
+            }
+
+            if(_timer){
+                return;
+            }
+
+            _timer = setTimeout(function(){
+                done();
+            }, delay);
+        }
+    }
+
+    var fn = throttle(function(e){
+        console.log(e);
+    }, 1000);
+
+    document.onkeydown = function(e){
+        fn.apply(this, arguments);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+</body>
+</html>

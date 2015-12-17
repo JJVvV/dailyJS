@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>nprogress</title>
+    <link rel="stylesheet" href="nprogress.css">
+</head>
+<body>
+
+<div id="nav-content">
+    <ul data-type="nav">
+        <li data-name="">
+            <a href="nav-1">nav-1</a>
+        </li>
+        <li data-name="">
+            <a href="nav-2">nav-2</a>
+        </li>
+        <li data-name="">
+            <a href="nav-3">nav-3</a>
+        </li>
+        <li data-name="">
+            <a href="nav-4">nav-4</a>
+        </li>
+        <li data-name="">
+            <a href="nav-5">nav-5</a>
+        </li>
+    </ul>
+
+    <ul data-type="content">
+        <li data-id="content-1">content1</li>
+        <li data-id="content-2">content2</li>
+        <li data-id="content-3">content3</li>
+        <li data-id="content-4">content4</li>
+        <li data-id="content-5">content5</li>
+    </ul>
+</div>
+
+<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+
+<script>
+
+$(function(){
+    var $navContent = $('#nav-content');
+    var $navList = $navContent.find('[data-type="nav"]');
+    var $contentList = $navContent.find('[data-type="content"]');
+    $navContent.on('click', '[data-name]', function(e){
+        e.preventDefault();
+        var index = $(this).index();
+        var $content = $contentList.children().eq(index);
+        if($content.length){
+            if($content.is(':visible')){
+                $content.fadeOut();
+            }else{
+                $contentList.children().hide();
+                $content.fadeIn();
+            }
+        }
+    });
+
+
+    init();
+    showByIndex(2);
+    function init(){
+        $contentList.children().hide();
+    }
+
+    function showByIndex(index){
+        $navList.children().eq(index).click();
+    }
+});
+
+</script>
+</body>
+</html>

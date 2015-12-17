@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>reg</title>
+</head>
+<body>
+<input type="text">
+<button>是否为两位数</button>
+
+<script>
+    var input = document.querySelector('input');
+    var btn = document.querySelector('button');
+
+    input.onkeyup = function(){
+        this.value = this.value.replace(/[^\d]/g, '')
+    }
+
+    btn.onclick = function(){
+        if(input.value === '') return;
+        /^\d{2}$/.test(input.value) && alert('right')
+    }
+</script>
+</body>
+</html>
