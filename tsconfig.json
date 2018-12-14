@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "target": "es2018",
+    "module": "esnext",
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "allowJs": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "lib": ["es2018", "es5", "es2016", "dom", "scripthost", "es2015.promise"],
+
+    "plugins": [
+      {
+        "name": "tslint-language-service"
+      }
+    ]
+  },
+
+  "exclude": ["node_modules", "./tools/**/*", "webpack.common.js"]
+}

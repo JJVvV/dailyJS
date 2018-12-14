@@ -1,0 +1,8 @@
+{
+  "name": "dailyJS",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:JJVvV/dailyJS.git",
+  "author": "JJVvV <drowning524@gmail.com>",
+  "license": "MIT"
+}
