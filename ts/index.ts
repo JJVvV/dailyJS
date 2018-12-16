@@ -66,3 +66,34 @@ interface IB extends IA {
 }
 
 type F1 = Foo<IA>
+
+type ReturnType3<T> = T extends (...args: any[]) => infer R ? R : any
+
+type InstanceType2<T extends new (...args: any[]) => any> = T extends new (
+  ...args: any[]
+) => infer R
+  ? R
+  : any
+
+class C {
+  x = 0
+  y = 0
+}
+
+type T20 = InstanceType2<typeof C>
+type T21 = string
+
+const dd: T20 = {
+  x: 0,
+  y: 0,
+}
+
+type GlobalState = {
+  name: string
+}
+function mapStateToProps(state: GlobalState, props) {
+  return {
+    ...state,
+  }
+}
+type NewState = ReturnType<typeof mapStateToProps>
