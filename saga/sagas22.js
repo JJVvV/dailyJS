@@ -24,6 +24,27 @@ function take() {
   }
 }
 
+function* takeEvery(worker) {
+  yield fork(function*() {
+    while (true) {
+      const action = yield take()
+      worker(action)
+    }
+  })
+}
+
+function fork(cb) {
+  return {
+    type: 'fork',
+    fn: cb,
+  }
+}
+
+function runForkEffect(effect, cb) {
+  task(effect.fn || effect)
+  cb()
+}
+
 function* mainSaga() {
   while (true) {
     const action = yield take()

@@ -55,6 +55,15 @@ type T0 = Unpacked<string>
 type T1 = Unpacked<string[]>
 type T2 = Unpacked<() => string>
 
+function getProperty<T, K extends keyof T>(obj: T, key: K) {
+  return obj[key]
+}
+
+const obj = {
+  a: '1',
+  b: '2',
+}
+
 type Foo<T> = T extends { a: infer U; b: infer U } ? U : never
 
 interface IA {
