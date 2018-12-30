@@ -7,17 +7,22 @@
   "license": "MIT",
   "dependencies": {
     "@types/history": "^4.7.2",
-    "@types/react": "^16.7.17",
+    "@types/jest": "^23.3.10",
+    "@types/node": "^10.12.18",
+    "@types/react": "^16.7.18",
+    "@types/react-dom": "^16.0.11",
     "@types/react-redux": "^6.0.11",
     "@types/react-router-redux": "^5.0.17",
     "@types/redux": "^3.6.0",
     "@types/redux-saga": "^0.10.5",
     "history": "^4.7.2",
-    "react": "^16.6.3",
+    "react": "16.7.0-alpha.0",
     "react-redux": "^6.0.0",
     "react-router-redux": "^4.0.8",
     "redux": "^4.0.1",
     "redux-saga": "^0.16.2",
-    "typesafe-actions": "^2.0.4"
+    "typesafe-actions": "^2.0.4",
+    "typescript": "^3.2.2",
+    "react-dom": "16.7.0-alpha.0"
   }
 }
