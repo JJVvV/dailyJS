@@ -5,6 +5,7 @@ function userFriendStatus(friendID) {
   function handleStatusChange(status) {
     setIsOnline(status.isOnline)
   }
+  console.log('')
   useEffect(() => {})
   return isOnline
 }
