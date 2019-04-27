@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>render</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <script src="render.js"></script>
+    <script src="createElement.js"></script>
+  </head>
+  <body>
+    <div id="wrapper"></div>
+
+    <script>
+      const wrapper = document.getElementById('wrapper')
+      const textElement = {
+        type: 'span',
+        props: {
+          children: [
+            {
+              type: 'TEXT ELEMENT',
+              props: { nodeValue: 'Foo' },
+            },
+            {
+              type: 'div',
+              props: {},
+            },
+          ],
+        },
+      }
+      // render(textElement, wrapper)
+      debugger
+      const element = createElement(
+        'div',
+        { id: 'container' },
+        createElement('input', { value: 'foo', type: 'text' }),
+        createElement('a', { href: '/bar' }, 'bar'),
+        createElement('span', { onClick: (e) => alert('Hi') }, 'click me')
+      )
+      render(element, wrapper)
+    </script>
+  </body>
+</html>

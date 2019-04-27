@@ -1,11 +1,16 @@
-import { userState, userEffect, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
-function userFriendStatus(friendID) {
-  const [isOnline, setIsOnline] = userState(null)
+function useFriendStatus(friendID) {
+  const [isOnline, setIsOnline] = useState(null)
+
   function handleStatusChange(status) {
     setIsOnline(status.isOnline)
   }
-  console.log('')
-  useEffect(() => {})
+  useEffect(() => {
+    ChatAPI.subscribeToFriendStatus(friendID, handleStatusChange)
+    return () => {
+      ChatAPI.unsubscriveFromFriendStatus(friendID, handleStatusChange)
+    }
+  })
   return isOnline
 }

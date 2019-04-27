@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>index</title>
+  </head>
+  <body>
+    <script src="index.js"></script>
+    <div class="root"></div>
+
+    <script>
+      const App = Seer({
+        data: {
+          goodCharacter: 'cloud strife',
+          evilCharacter: 'Sephiroth',
+          placeholder: 'choose your side',
+          side: null,
+          selectedCharacter() {
+            switch (this.data.side) {
+              case 'Good':
+                return `Your character is ${this.data.goodCharacter}`
+              case 'Evil':
+                return `Your character is ${this.data.evilCharacter}`
+              default:
+                return this.data.placeholder
+            }
+          },
+          selectedCharacterSentenceLength() {
+            return this.data.selectedCharacter.length
+          },
+        },
+      })
+    </script>
+  </body>
+</html>
