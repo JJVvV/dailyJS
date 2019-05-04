@@ -21,6 +21,7 @@
     "no-restricted-syntax": ["error", "never"],
     "no-prototype-builtins": "off",
     "arrow-parens": "off",
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    "no-underscore-dangle": "off"
   }
 }

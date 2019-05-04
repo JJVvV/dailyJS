@@ -1,0 +1,22 @@
+.feed {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.feed ul,
+.feed li {
+  display: contents;
+}
+
+@supports (display: contents) {
+  .feed ul,
+  .feed li {
+    display: contents;
+  }
+}
+
+@supports not (display: contents) {
+  .feed li {
+    flex: 1 0 50%;
+  }
+}
