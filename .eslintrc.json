@@ -22,6 +22,8 @@
     "no-prototype-builtins": "off",
     "arrow-parens": "off",
     "no-plusplus": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "no-continue": "off",
+    "no-param-reassign": "off"
   }
 }
