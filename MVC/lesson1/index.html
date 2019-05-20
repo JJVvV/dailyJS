@@ -1,136 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Class</title>
-</head>
-<body>
-<button>click me</button>
+  </head>
+  <body>
+    <button>click me</button>
 
-<script>
-
-    var Class = function(parent){
-        var kclass = function(){
-            return this.init.apply(this, arguments);
+    <script>
+      var Class = function(parent) {
+        var kclass = function() {
+          return this.init.apply(this, arguments)
         }
 
-        if(parent){
-            var subclass = function(){console.log('hehe')};
-            subclass.prototype = parent.prototype;
-            kclass.prototype = new subclass();
+        if (parent) {
+          var subclass = function() {
+            console.log('hehe')
+          }
+          subclass.prototype = parent.prototype
+          kclass.prototype = new subclass()
         }
 
-        kclass.prototype.init = function(){
-            this.name = 'haha';
+        kclass.prototype.init = function() {
+          this.name = 'haha'
         }
 
-        kclass.fn = kclass.prototype;
+        kclass.fn = kclass.prototype
 
-        kclass.fn.parent = kclass;
+        kclass.fn.parent = kclass
 
-        kclass._super = kclass.__proto__;
+        kclass._super = kclass.__proto__
 
-        kclass.proxy = function(func){
-            var self = this;
+        kclass.proxy = function(func) {
+          var self = this
 
-            return function(){
-                return func.apply(self, arguments);
-            }
+          return function() {
+            return func.apply(self, arguments)
+          }
         }
 
         //在实例中也添加此方法
-        kclass.fn.proxy = kclass.proxy;
-
+        kclass.fn.proxy = kclass.proxy
 
         //为类添加静态方法
-        kclass.extend = function(obj){
-            var extended = obj.extended;
-            for(i in obj){
-                kclass[i] = obj[i];
-            }
+        kclass.extend = function(obj) {
+          var extended = obj.extended
+          for (i in obj) {
+            kclass[i] = obj[i]
+          }
 
-            if(extended) extended(kclass)
+          if (extended) extended(kclass)
         }
 
         //为类添加实例方法
-        kclass.include = function(obj){
-            var included = obj.included;
-            for(var i in obj){
-                kclass.fn[i] = obj[i];
-            }
+        kclass.include = function(obj) {
+          var included = obj.included
+          for (var i in obj) {
+            kclass.fn[i] = obj[i]
+          }
 
-            if(included) included(kclass)
+          if (included) included(kclass)
         }
 
-        return kclass;
-    }
+        return kclass
+      }
 
-//    var Person = new Class();
-//    Person.fn = Person.prototype;
-//
-//    Person.fn.run = function(){}
-//
-//    //静态方法
-//    Person.find = function(id){}
-//
-//    var person = Person.find(1);
-//
-//    Person.fn.save = function(){};
-//    var person = new Person();
-//    person.save();
+      //    var Person = new Class();
+      //    Person.fn = Person.prototype;
+      //
+      //    Person.fn.run = function(){}
+      //
+      //    //静态方法
+      //    Person.find = function(id){}
+      //
+      //    var person = Person.find(1);
+      //
+      //    Person.fn.save = function(){};
+      //    var person = new Person();
+      //    person.save();
 
-//    var Animal = new Class;
-//
-//    Animal.include({
-//        breath: function(){
-//            console.log('breath');
-//        }
-//    });
-//
-//    var Cat = new Class(Animal)
-//
-//    var tommmy = new Cat();
-//
-//    var App = {
-//        log: function(){
-//            if(typeof console === 'undefined') return;
-//
-//            var args = Array.prototype.slice.apply(arguments);
-//
-//            args.unshift('(App)');
-//
-//            console.log.apply(console, args);
-//        }
-//    }
+      //    var Animal = new Class;
+      //
+      //    Animal.include({
+      //        breath: function(){
+      //            console.log('breath');
+      //        }
+      //    });
+      //
+      //    var Cat = new Class(Animal)
+      //
+      //    var tommmy = new Cat();
+      //
+      //    var App = {
+      //        log: function(){
+      //            if(typeof console === 'undefined') return;
+      //
+      //            var args = Array.prototype.slice.apply(arguments);
+      //
+      //            args.unshift('(App)');
+      //
+      //            console.log.apply(console, args);
+      //        }
+      //    }
 
-    var Button = new Class;
+      var Button = new Class()
 
-    Button.include({
-        init: function(element){
-            this.element = element;
+      Button.include({
+        init: function(element) {
+          this.element = element
 
-            this.element.onclick = this.proxy(this.click);
+          this.element.onclick = this.proxy(this.click)
         },
 
-        click: function(){
-            console.log('haha');
+        click: function() {
+          console.log('haha')
+        },
+      })
+
+      new Button(document.querySelector('button'))
+
+      if (!Function.prototype.bind) {
+        Function.prototype.bind = function(obj) {
+          var slice = [].slice,
+            args = slice.call(arguments, 1),
+            self = this,
+            nop = function() {},
+            bound = function() {
+              return self.apply(
+                this instanceof nop ? this : obj || {},
+                args.concat(slice.call(arguments))
+              )
+            }
+          nop.prototype = self.prototype
+          bound.prototype = new nop()
+          return bound
         }
-    });
-
-    new Button(document.querySelector('button'));
-
-    if(!Function.prototype.bind){
-        Function.prototype.bind = function (obj) {
-            var slice = [].slice,
-                    args = slice.call(arguments, 1), self = this,
-                    nop = function () {},
-                    bound = function () {
-                        return self.apply( this instanceof nop ? this : (obj || {}), args.concat(slice.call(arguments)));
-                    };
-            nop.prototype = self.prototype; bound.prototype = new nop();
-            return bound;
-        };
-    }
-</script>
-</body>
+      }
+    </script>
+  </body>
 </html>

@@ -1,577 +1,565 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>autocomplete</title>
     <style>
-        .autocomplete-list{
-            position: absolute;
-            display: none;
-            height: 100px;
-            border: 1px solid green;
-            z-index: 999;
-        }
+      .autocomplete-list {
+        position: absolute;
+        display: none;
+        height: 100px;
+        border: 1px solid green;
+        z-index: 999;
+      }
 
-        .autocomplete-item{
-            cursor: pointer;
-        }
+      .autocomplete-item {
+        cursor: pointer;
+      }
 
-        .autocomplete-item.active{
-            border: 1px solid crimson;
-        }
+      .autocomplete-item.active {
+        border: 1px solid crimson;
+      }
     </style>
-</head>
-<body>
-<input type="text" class="autocomplete" />
-<script>
+  </head>
+  <body>
+    <input type="text" class="autocomplete" />
+    <script>
+      var isFunc = isType('Function')
+      var isObj = isType('Object')
+      var isBool = isType('Boolean')
+      var isArr = isType('Array')
 
-    var isFunc = isType('Function');
-    var isObj = isType('Object');
-    var isBool = isType('Boolean');
-    var isArr = isType('Array');
-
-    function isType(type){
-        return function(obj){
-            return Object.prototype.toString.call(obj) === '[object '+ type +']';
+      function isType(type) {
+        return function(obj) {
+          return Object.prototype.toString.call(obj) === '[object ' + type + ']'
         }
-    }
+      }
 
-    function index(el){
+      function index(el) {
         var i = 0,
-                pre;
-        while(pre = el.previousSibling){
-            if(pre.nodeType === 1){
-                i++
-            }
-            el = pre;
+          pre
+        while ((pre = el.previousSibling)) {
+          if (pre.nodeType === 1) {
+            i++
+          }
+          el = pre
         }
-        return i;
-    }
+        return i
+      }
 
+      var data = ['生如夏花', '九月', '在希望的田野上']
 
-    var data = ['生如夏花', '九月', '在希望的田野上'];
+      //    var input = document.querySelector('.autocomplete');
+      //
+      //    input.addEventListener('keydown', onkeyup, false);
+      //    input.addEventListener('blur', onblur, false);
+      var single = function(fn) {
+        var ret
 
-//    var input = document.querySelector('.autocomplete');
-//
-//    input.addEventListener('keydown', onkeyup, false);
-//    input.addEventListener('blur', onblur, false);
-    var single = function(fn){
-        var ret ;
-
-        return function(){
-            if(ret){
-                return ret;
-            }
-            return ret = typeof fn === 'function' && fn.apply(this, arguments);
+        return function() {
+          if (ret) {
+            return ret
+          }
+          return (ret = typeof fn === 'function' && fn.apply(this, arguments))
         }
-    }
+      }
 
+      function AutoComplete() {
+        Event.call(this)
+        this.init.apply(this, arguments)
+      }
 
-
-    function AutoComplete(){
-        Event.call(this);
-        this.init.apply(this, arguments);
-    }
-
-    AutoComplete.prototype = {
+      AutoComplete.prototype = {
         constructor: AutoComplete,
-        init: function(input, options){
-            this.input = input;
-            this.options = extend({}, this.defaultOptions, options);
-            this.data = this.options.data || [];
-            this.activeIndex = -1;
-            this._create();
-            this._event();
-
+        init: function(input, options) {
+          this.input = input
+          this.options = extend({}, this.defaultOptions, options)
+          this.data = this.options.data || []
+          this.activeIndex = -1
+          this._create()
+          this._event()
         },
 
-        _create: function(){
-            this._singleList(this.data);
+        _create: function() {
+          this._singleList(this.data)
         },
 
+        _position: function() {
+          var target = this.input
+          var rect = target.getBoundingClientRect()
+          var left = rect.left + window.pageXOffset
+          var top = rect.bottom + window.pageYOffset
 
-
-        _position: function(){
-            var target = this.input;
-            var rect = target.getBoundingClientRect();
-            var left = rect.left + window.pageXOffset;
-            var top = rect.bottom + window.pageYOffset;
-
-            this.list.style.left = left;
-            this.list.style.top = top;
-            this.list.style.width = getComputedStyle(target, null).width;
+          this.list.style.left = left
+          this.list.style.top = top
+          this.list.style.width = getComputedStyle(target, null).width
         },
 
-        _hide: function(el){
-            this.list.style.display = 'none';
+        _hide: function(el) {
+          this.list.style.display = 'none'
         },
 
-        _show: function(el){
-            el.style.display = 'block';
+        _show: function(el) {
+          el.style.display = 'block'
         },
 
-        _showList: function(){
-            this._show(this.list);
+        _showList: function() {
+          this._show(this.list)
         },
 
-        _hideList: function(){
-            this._hide(this.list);
+        _hideList: function() {
+          this._hide(this.list)
         },
 
-        _itemData: function(i){
+        _itemData: function(i) {
+          if (typeof i === 'object') {
+            i = index(i)
+          }
+          if (i == undefined) i = this.activeIndex
 
-            if(typeof i === 'object'){
-                i = index(i);
+          return this.data[i]
+        },
+
+        _event: function() {
+          var that = this
+          EventUtil.on(this.input, 'click', function(e) {
+            e.stopPropagation()
+
+            if (that.data.length) {
+              that._showList()
             }
-            if(i == undefined) i = this.activeIndex;
+          })
+          EventUtil.on(this.list, 'click', '.autocomplete-item', function(e) {
+            e.stopPropagation()
+            that.activeIndex = index(this)
+            this.value = that._itemData()
+            that._enter(this.value)
+          })
 
-            return this.data[i];
+          EventUtil.on(this.list, 'mouseover', '.autocomplete-item', function(
+            e
+          ) {
+            var i = index(this)
+            if (i !== that.activeIndex) {
+              this.classList.add('active')
+            }
+            that.trigger('over', this)
+          })
+
+          EventUtil.on(this.list, 'mouseout', '.autocomplete-item', function(
+            e
+          ) {
+            var i = index(this)
+            if (i !== that.activeIndex) {
+              this.classList.remove('active')
+            }
+            that.trigger('out', this)
+          })
+
+          EventUtil.on(this.list, 'mouseover', '.autocomplete-item', function(
+            e
+          ) {
+            this.classList.add('active')
+          })
+
+          EventUtil.on(this.input, 'keydown', function(e) {
+            switch (e.which) {
+              case 38:
+                if (that.data.length === 0) return
+                if (that.activeIndex === -1) {
+                  that.activeIndex = that.data.length - 1
+                } else {
+                  that.activeIndex--
+                  if (
+                    that.activeIndex < 0 ||
+                    that.activeIndex >= that.data.length
+                  ) {
+                    that.activeIndex = -1
+                    that.input.value = that.value
+                  }
+                }
+
+                that._activeItem()
+                e.preventDefault()
+                break
+
+              case 40:
+                if (that.data.length === 0) return
+                if (that.activeIndex === -1) {
+                  that.activeIndex = 0
+                } else {
+                  that.activeIndex++
+                  if (
+                    that.activeIndex < 0 ||
+                    that.activeIndex >= that.data.length
+                  ) {
+                    that.activeIndex = -1
+                    that.input.value = that.value
+                  }
+                }
+                that._activeItem()
+                e.preventDefault()
+                break
+
+              case 13:
+                that._enter(this.value)
+                break
+              default:
+                that._throttle()
+            }
+          })
+
+          EventUtil.on(this.input, 'focus', function() {
+            if (that.data.length) {
+              that._activeItem()
+              that._showList()
+            }
+          })
+          EventUtil.on(document, 'click', function(e) {
+            if (!that.list.contains(e.target)) {
+              that._hideList()
+            }
+          })
         },
 
-        _event: function(){
-            var that = this;
-            EventUtil.on(this.input, 'click', function(e){
-                e.stopPropagation();
+        _enter: function(value) {
+          if (this.activeIndex !== -1) {
+            this.value = value
+            this.input.value = this.value
+            var items = this.list.querySelectorAll('.autocomplete-item')
+            items[this.activeIndex] &&
+              items[this.activeIndex].classList.remove('active')
+            this.activeIndex = -1
+            this.trigger('choose', this.value)
+          }
 
-                if(that.data.length){
-                    that._showList();
-                }
-            });
-            EventUtil.on(this.list,'click', '.autocomplete-item', function(e){
-                e.stopPropagation();
-                that.activeIndex = index(this);
-                this.value = that._itemData();
-                that._enter(this.value);
-
-            });
-
-            EventUtil.on(this.list, 'mouseover', '.autocomplete-item', function(e){
-                var i = index(this);
-                if(i !== that.activeIndex){
-                    this.classList.add('active');
-                }
-                that.trigger('over', this);
-            });
-
-            EventUtil.on(this.list, 'mouseout', '.autocomplete-item', function(e){
-                var i = index(this);
-                if(i !== that.activeIndex){
-                    this.classList.remove('active');
-                }
-                that.trigger('out', this);
-            });
-
-            EventUtil.on(this.list, 'mouseover', '.autocomplete-item', function(e){
-                this.classList.add('active');
-            });
-
-            EventUtil.on(this.input, 'keydown', function(e){
-
-                switch (e.which){
-                    case 38:
-                            if(that.data.length === 0) return;
-                            if(that.activeIndex === -1){
-                                that.activeIndex = that.data.length - 1;
-                            }else {
-                                that.activeIndex--;
-                                if(that.activeIndex < 0 || that.activeIndex >= that.data.length ){
-                                    that.activeIndex = -1;
-                                    that.input.value = that.value;
-                                }
-                            }
-
-                        that._activeItem();
-                        e.preventDefault();
-                        break;
-
-                    case 40:
-                        if(that.data.length === 0) return;
-                        if(that.activeIndex === -1){
-                                that.activeIndex = 0;
-                            }else{
-                                that.activeIndex++;
-                                if(that.activeIndex < 0 || that.activeIndex >= that.data.length){
-                                    that.activeIndex = -1;
-                                    that.input.value = that.value;
-                                }
-                            }
-                        that._activeItem();
-                        e.preventDefault();
-                        break;
-
-                    case 13:
-                        that._enter(this.value);
-                        break;
-                    default:
-                        that._throttle();
-
-
-                }
-            });
-
-            EventUtil.on(this.input, 'focus', function(){
-                if(that.data.length){
-                    that._activeItem();
-                    that._showList();
-                }
-            });
-            EventUtil.on(document, 'click', function(e){
-                if(!that.list.contains(e.target)){
-                    that._hideList();
-                }
-
-            });
-
+          this._hide(this.list)
         },
 
-        _enter: function(value){
-            if(this.activeIndex !== -1){
-                this.value = value;
-                this.input.value = this.value;
-                var items = this.list.querySelectorAll('.autocomplete-item');
-                items[this.activeIndex] && items[this.activeIndex].classList.remove('active');
-                this.activeIndex = -1;
-                this.trigger('choose', this.value);
+        _activeItem: function() {
+          var items = this.list.querySelectorAll('.autocomplete-item'),
+            length = items.length,
+            activeItem
+
+          if (length === 0) return
+
+          for (var i = 0; i < length; i++) {
+            if (i === this.activeIndex) {
+              items[i].classList.add('active')
+            } else {
+              items[i].classList.remove('active')
             }
-
-            this._hide(this.list);
-
-
+          }
+          activeItem = items[this.activeIndex]
+          if (activeItem) {
+            this.input.value = this._itemData()
+            this.trigger('changeItem', items[this.activeIndex])
+          }
         },
 
-        _activeItem: function(){
-
-
-            var items = this.list.querySelectorAll('.autocomplete-item'),
-                    length = items.length,
-                    activeItem;
-
-            if(length === 0) return;
-
-            for(var i=0; i<length; i++){
-                if(i === this.activeIndex){
-                    items[i].classList.add('active');
-                }else{
-                    items[i].classList.remove('active');
-                }
-            }
-            activeItem = items[this.activeIndex];
-            if(activeItem){
-                this.input.value = this._itemData();
-                this.trigger('changeItem', items[this.activeIndex]);
-            }
-
+        _bindData: function(data) {
+          var innerArr = []
+          innerArr.push('<div class="autocomplete-list-inner">')
+          for (var i = 0; i < data.length; i++) {
+            innerArr.push(
+              '<div class="autocomplete-item">' + data[i] + '</div>'
+            )
+          }
+          innerArr.push('</div>')
+          this.list.innerHTML = innerArr.join('')
+          if (data.length) {
+            this.activeIndex = -1
+            this._show(this.list)
+            this.trigger('show')
+          }
         },
 
-        _bindData: function(data){
-            var innerArr = [];
-            innerArr.push('<div class="autocomplete-list-inner">');
-            for(var i=0; i<data.length; i++){
-                innerArr.push('<div class="autocomplete-item">'+ data[i] +'</div>');
-            }
-            innerArr.push('</div>');
-            this.list.innerHTML = innerArr.join('');
-            if(data.length){
-                this.activeIndex = -1;
-                this._show(this.list);
-                this.trigger('show');
-            }
-        },
+        _singleList: single(function(data) {
+          var list = document.createElement('div')
+          list.className = 'autocomplete-list'
+          document.body.appendChild(list)
+          this.list = list
+          this._position()
 
-        _singleList: single(function(data){
-            var list = document.createElement('div');
-            list.className = 'autocomplete-list';
-            document.body.appendChild(list);
-            this.list = list;
-            this._position();
-
-            this._bindData(data);
-            return this.list;
+          this._bindData(data)
+          return this.list
         }),
 
-        _throttle: throttle(function(){
-            this.data = ['生如夏花', '九月', '在希望的田野上'];
-            this.value = this.input.value;
-            Math.random()> 0.5 ? this.data.push('旅途') : this.data.pop();
-            this._bindData(this.data);
-        }, false, 200)
-    }
+        _throttle: throttle(
+          function() {
+            this.data = ['生如夏花', '九月', '在希望的田野上']
+            this.value = this.input.value
+            Math.random() > 0.5 ? this.data.push('旅途') : this.data.pop()
+            this._bindData(this.data)
+          },
+          false,
+          200
+        ),
+      }
 
-    function Event(){
-        this.callbacks = {};
-    }
+      function Event() {
+        this.callbacks = {}
+      }
 
-    Event.prototype = {
+      Event.prototype = {
         constructor: Event,
-        on: function(type, fn){
-            if(!this.callbacks[type]) this.callbacks[type] = [];
-            this.callbacks[type].push(fn);
+        on: function(type, fn) {
+          if (!this.callbacks[type]) this.callbacks[type] = []
+          this.callbacks[type].push(fn)
 
-            return this;
+          return this
         },
 
-        trigger: function(type, data){
-            var callbacks = this.callbacks[type];
-            if(callbacks){
-                for(var i =0, len=callbacks.length; i<len; i++){
-                    typeof callbacks[i] === 'function' && callbacks[i].call(this, data);
-                }
+        trigger: function(type, data) {
+          var callbacks = this.callbacks[type]
+          if (callbacks) {
+            for (var i = 0, len = callbacks.length; i < len; i++) {
+              typeof callbacks[i] === 'function' &&
+                callbacks[i].call(this, data)
             }
+          }
 
-            return this;
+          return this
         },
 
-        off: function(type, handler){
-            if(handler === undefined){
-                delete this.callbacks[type];
-            }else {
-                for(var i= 0, len=callbacks.length; i<len; i++){
-                    if(callbacks[i] === handler){
-                        callbacks.splice(1, i);
-                        return this;
-                    }
-                }
-
-                return this;
+        off: function(type, handler) {
+          if (handler === undefined) {
+            delete this.callbacks[type]
+          } else {
+            for (var i = 0, len = callbacks.length; i < len; i++) {
+              if (callbacks[i] === handler) {
+                callbacks.splice(1, i)
+                return this
+              }
             }
 
+            return this
+          }
         },
 
-        once: function(type, fn){
-            var that = this;
-            var wrapper = function(){
-                fn.apply(that, arguments);
-                that.off(type, wrapper);
-            }
+        once: function(type, fn) {
+          var that = this
+          var wrapper = function() {
+            fn.apply(that, arguments)
+            that.off(type, wrapper)
+          }
 
-            this.on(type, wrapper);
-        }
-    }
+          this.on(type, wrapper)
+        },
+      }
 
+      extend(AutoComplete.prototype, Event.prototype)
 
-
-    extend(AutoComplete.prototype, Event.prototype);
-
-    function extend(){
+      function extend() {
         var args = arguments,
-                i = 1,
-                deep = false,
-                target = args[0],
-                length = args.length,
-                p,
-                clone,
-                options,
-                src,
-                copyIsArray,
-                copy;
+          i = 1,
+          deep = false,
+          target = args[0],
+          length = args.length,
+          p,
+          clone,
+          options,
+          src,
+          copyIsArray,
+          copy
 
-        if(isBool(args[0])){
-            deep = args[0];
-            target = args[1];
-            i++;
+        if (isBool(args[0])) {
+          deep = args[0]
+          target = args[1]
+          i++
         }
 
-        if(i === length){
-            return args[0];
+        if (i === length) {
+          return args[0]
         }
-        if(typeof target !== 'object' && !isFunc(target)){
-            target = {}
+        if (typeof target !== 'object' && !isFunc(target)) {
+          target = {}
         }
-        for(; i<length; i++){
-            if((options = args[i]) != null){
-                for(p in options){
-                    src = target[p];
-                    copy = options[p];
-                    if(src === copy){
-                        continue;
-                    }
-                    if(deep && copy && (isPlainObject(copy) || (copyIsArray = isArr(copy)))){
-                        if(copyIsArray){
-                            copyIsArray = false;
-                            clone = src && isArr(src) ? src : [];
-                        }else {
-                            clone = src && isPlainObject(src) ? src : {};
-                        }
-                        target[p] = extend2(deep, clone, copy);
-                    }else {
-                        target[p] = copy;
-                    }
-
+        for (; i < length; i++) {
+          if ((options = args[i]) != null) {
+            for (p in options) {
+              src = target[p]
+              copy = options[p]
+              if (src === copy) {
+                continue
+              }
+              if (
+                deep &&
+                copy &&
+                (isPlainObject(copy) || (copyIsArray = isArr(copy)))
+              ) {
+                if (copyIsArray) {
+                  copyIsArray = false
+                  clone = src && isArr(src) ? src : []
+                } else {
+                  clone = src && isPlainObject(src) ? src : {}
                 }
+                target[p] = extend2(deep, clone, copy)
+              } else {
+                target[p] = copy
+              }
             }
-
+          }
         }
 
-        return target;
-    }
+        return target
+      }
 
-
-
-
-
-    var EventUtil = {
-        getEvent: function(e){
-            return e || window.event;
+      var EventUtil = {
+        getEvent: function(e) {
+          return e || window.event
         },
 
-        getTarget: function(e){
-            return e.target || e.srcElement;
+        getTarget: function(e) {
+          return e.target || e.srcElement
         },
 
-        on: function(el, type, child, fn){
-            if(typeof child === 'function'){
-                fn = child;
-            }
+        on: function(el, type, child, fn) {
+          if (typeof child === 'function') {
+            fn = child
+          }
 
-            if(el.addEventListener){
-                var wrapper;
-                if(arguments.length === 4){
-                    wrapper = function(e){
-                        var target = e.target;
-                        while(target !== el){
-                            if(target.matches(child)){
-                                fn.call(target, e);
-                                break;
-                            }
-                            target = target.parentNode;
-                        }
-
-                    }
-                }else {
-                    wrapper = fn;
+          if (el.addEventListener) {
+            var wrapper
+            if (arguments.length === 4) {
+              wrapper = function(e) {
+                var target = e.target
+                while (target !== el) {
+                  if (target.matches(child)) {
+                    fn.call(target, e)
+                    break
+                  }
+                  target = target.parentNode
                 }
-                el.addEventListener(type, wrapper, false);
+              }
+            } else {
+              wrapper = fn
+            }
+            el.addEventListener(type, wrapper, false)
 
-                return wrapper;
-            }else if(el.attachEvent) {
-                var wrapper;
+            return wrapper
+          } else if (el.attachEvent) {
+            var wrapper
 
-                if(arguments.length === 4){
-                    wrapper = function(){
-                        var event = window.event;
-                        event.target = event.srcElement;
-                        var target = event.target;
-                        while(target !== el){
-                            if(target.matches(child)){
-                                fn.call(target, event);
-                                break;
-                            }
-                            target = target.parentNode;
-                        }
-
-                    }
-                }else{
-                    wrapper = function(e){
-                        var event = window.event;
-                        event.target = event.srcElement;
-                        fn.call(el, event);
-                    }
+            if (arguments.length === 4) {
+              wrapper = function() {
+                var event = window.event
+                event.target = event.srcElement
+                var target = event.target
+                while (target !== el) {
+                  if (target.matches(child)) {
+                    fn.call(target, event)
+                    break
+                  }
+                  target = target.parentNode
                 }
-
-                el.attachEvent('on' + type, wrapper);
-
-                return wrapper;
+              }
+            } else {
+              wrapper = function(e) {
+                var event = window.event
+                event.target = event.srcElement
+                fn.call(el, event)
+              }
             }
+
+            el.attachEvent('on' + type, wrapper)
+
+            return wrapper
+          }
         },
 
-        off: function(el, type, fn){
-            if(el.addEventListener){
-                el.removeEventListener(type, fn, false);
-            }else if(el.attachEvent){
-                el.detachEvent('on' + type, fn);
-            }
+        off: function(el, type, fn) {
+          if (el.addEventListener) {
+            el.removeEventListener(type, fn, false)
+          } else if (el.attachEvent) {
+            el.detachEvent('on' + type, fn)
+          }
         },
 
-        preventDefault: function(e){
-            if(e.preventDefault){
-                e.preventDefault();
-            }else if('returnValue' in e){
-                e.returnValue = false;
-            }
+        preventDefault: function(e) {
+          if (e.preventDefault) {
+            e.preventDefault()
+          } else if ('returnValue' in e) {
+            e.returnValue = false
+          }
         },
 
-        stopPropagation: function(e){
-            if(e.stopPropagation){
-                e.stopPropagation();
-            }else if('cancelBubble' in e){
-                e.cancelBubble = true;
-            }
-        }
-    }
+        stopPropagation: function(e) {
+          if (e.stopPropagation) {
+            e.stopPropagation()
+          } else if ('cancelBubble' in e) {
+            e.cancelBubble = true
+          }
+        },
+      }
 
-    function throttle(fn, firstTime, delay){
-        if(typeof arguments[1] === 'number'){
-            delay = firstTime;
-        }
-
-        if(firstTime === undefined || firstTime === null){
-            firstTime = true;
+      function throttle(fn, firstTime, delay) {
+        if (typeof arguments[1] === 'number') {
+          delay = firstTime
         }
 
-        if(delay === undefined){
-            delay = 300;
+        if (firstTime === undefined || firstTime === null) {
+          firstTime = true
         }
 
-        var _timer;
-        var _last;
+        if (delay === undefined) {
+          delay = 300
+        }
+
+        var _timer
+        var _last
         var _that = this,
-                args,
-                _now;
+          args,
+          _now
 
-        function done(){
-            fn.apply(this, args);
-            _last = _now;
-            clearTimeout(_timer);
-            _timer = null;
+        function done() {
+          fn.apply(this, args)
+          _last = _now
+          clearTimeout(_timer)
+          _timer = null
         }
 
-        return function(){
-            var that = this;
-            args = arguments;
-            _now = +new Date();
+        return function() {
+          var that = this
+          args = arguments
+          _now = +new Date()
 
-            if(firstTime){
-                firstTime = false;
-                fn.apply(this, args);
-                return;
-            }
+          if (firstTime) {
+            firstTime = false
+            fn.apply(this, args)
+            return
+          }
 
-            _last = _last || +new Date();
+          _last = _last || +new Date()
 
-            if(delay*2 > _now - _last >= delay){
-                done.apply(that, arguments);
-                return;
-            }
+          if (delay * 2 > _now - _last >= delay) {
+            done.apply(that, arguments)
+            return
+          }
 
-            if(_timer){
-                return;
-            }
+          if (_timer) {
+            return
+          }
 
-            _timer = setTimeout(function(){
-                done.apply(that, arguments);
-            }, delay);
+          _timer = setTimeout(function() {
+            done.apply(that, arguments)
+          }, delay)
         }
-    }
+      }
 
-    var autoInput = new AutoComplete(document.querySelector('input'));
+      var autoInput = new AutoComplete(document.querySelector('input'))
 
-    function onchoose(data){
-        console.log(data);
-    }
+      function onchoose(data) {
+        console.log(data)
+      }
 
-    function oncheck(data){
-           console.log(data);
-    }
-    function onover(data){
-        console.log(index(data));
-    }
-    autoInput.
-            on('choose', onchoose).
-            on('over', onover);
-
-
-
-
-</script>
-</body>
+      function oncheck(data) {
+        console.log(data)
+      }
+      function onover(data) {
+        console.log(index(data))
+      }
+      autoInput.on('choose', onchoose).on('over', onover)
+    </script>
+  </body>
 </html>

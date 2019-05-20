@@ -23,5 +23,7 @@
     "titleBar.activeForeground": "#e7e7e7",
     "titleBar.inactiveForeground": "#e7e7e799"
   },
-  "liveServer.settings.port": 5502
+  "liveServer.settings.port": 5502,
+  "editor.formatOnSave": true,
+  "eslint.autoFixOnSave": true,
 }

@@ -59,10 +59,10 @@ function getProperty<T, K extends keyof T>(obj: T, key: K) {
   return obj[key]
 }
 
-const obj = {
-  a: '1',
-  b: '2',
-}
+// const obj = {
+//   a: '1',
+//   b: '2',
+// }
 
 type Foo<T> = T extends { a: infer U; b: infer U } ? U : never
 
