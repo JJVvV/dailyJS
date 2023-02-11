@@ -1,0 +1,1 @@
+find . -name '*.sh' -print -exec mv '{}' ./sh \;
